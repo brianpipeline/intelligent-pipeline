@@ -49,7 +49,7 @@ steps:
       '-c',
       'gcloud builds triggers create pubsub 
        --name=$_REPOSITORY_NAME-pubsub-trigger 
-       --topic=projects/cloud-build-pipeline-396819/subscriptions/ci-cd-sub 
-       --trigger-config=/workspace/cloudbuild_generator/cloudbuild.yaml
-       --region=us-central1'
+       --topic=projects/cloud-build-pipeline-396819/topics/ci-cd
+       --inline-config=/workspace/cloudbuild_generator/cloudbuild.yaml
+       --region=global'
     ]

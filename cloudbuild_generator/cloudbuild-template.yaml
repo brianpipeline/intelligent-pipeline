@@ -30,22 +30,22 @@ steps:
     ]
 
   # Push the container image to Container Registry
-  - name: gcr.io/cloud-builders/docker'
+  - name: 'gcr.io/cloud-builders/docker'
     id: 'Build docker image'
     args:
       [
         'build',
         '-f',
-        '{{dockerfilePath}}'
-        'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}',
+        '{{dockerfilePath}}',
+        'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}'
       ]
   # Push the container image to Container Registry
-  - name: gcr.io/cloud-builders/docker'
+  - name: 'gcr.io/cloud-builders/docker'
     id: 'Push docker image'
     args:
       [
         'push',
-        'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}',
+        'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}'
       ]
 
   # Deploy container image to Cloud Run
@@ -54,7 +54,7 @@ steps:
     entrypoint: 'bash'
     args:
       [
-        '-c'
+        '-c',
         'gcloud run deploy $_SERVICE_NAME
         --service-account=$_SERVICE_ACCOUNT
         --image=us-central1-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_APP_NAME:$_APP_VERSION
@@ -63,5 +63,5 @@ steps:
         --min-instances=1
         --max-instances=1
         --project=$_PROJECT_ID
-        --port=8080',
+        --port=8080'
       ]
