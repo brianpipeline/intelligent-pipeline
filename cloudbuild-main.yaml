@@ -1,7 +1,7 @@
 substitutions:
   # Repository Specific configuration. DevOps can change these as needed
   _REPOSITORY: YOUR_CONTAINER_REPOSITORY_NAME
-  _REPO_TO_CLONE: $(body)
+  _REPO_TO_CLONE: $(body.repository.clone_url)
 
 options:
   substitution_option: ALLOW_LOOSE
