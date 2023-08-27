@@ -15,6 +15,14 @@ steps:
       '-c',
       'echo $_REPO_TO_CLONE'
     ]
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone repo'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone $_REPO_TO_CLONE && ls'
+    ]
   # Build the container image
 #  - name: "gcr.io/cloud-builders/docker"
 #    args:
