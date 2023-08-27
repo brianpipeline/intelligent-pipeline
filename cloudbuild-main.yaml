@@ -45,17 +45,18 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Delete pubsub trigger if it exists.'
     entrypoint: 'bash'
-    args: [
-      '-c',
-      '
-      if `gcloud builds triggers list | grep -q "hello-world"`;
-      then
-        gcloud builds triggers delete $_REPOSITORY_NAME-pubsub-trigger
-      else
-        echo "trigger does not exist, so we are creating it now."
-      fi
-      '
-    ]
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if `gcloud builds triggers list | grep -q "hello-world"`;
+        then
+          gcloud builds triggers delete $_REPOSITORY_NAME-pubsub-trigger
+        else
+          echo "trigger does not exist, so we are creating it now."
+        fi
+    
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub trigger.'
