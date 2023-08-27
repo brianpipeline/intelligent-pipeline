@@ -1,10 +1,7 @@
 import fs from "fs";
 import YAML from "yaml";
 
-const file = fs.readFileSync(
-  "/Users/bkurilko/Repos/PipelineStuff/intelligent-pipeline/cloudbuild_generator/brianpipeline.yaml",
-  "utf8"
-);
+const file = fs.readFileSync(process.argv[2], "utf8");
 const {
   "dockerfile.path": dockerfilePath,
   buildContainer,
@@ -12,3 +9,5 @@ const {
 } = YAML.parse(file);
 
 console.log(envs);
+
+console.log(process.argv[2]);

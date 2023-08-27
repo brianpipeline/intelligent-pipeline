@@ -1,6 +1,6 @@
 substitutions:
   # Repository Specific configuration. DevOps can change these as needed
-  _REPOSITORY: YOUR_CONTAINER_REPOSITORY_NAME
+  _REPOSITORY_NAME: $(body.repository.name)
   _REPO_TO_CLONE: $(body.repository.clone_url)
 
 options:
@@ -13,7 +13,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'echo $_REPO_TO_CLONE'
+      'echo $_REPOSITORY_NAME'
     ]
 
   - name: 'gcr.io/cloud-builders/git'
@@ -32,12 +32,12 @@ steps:
       'git clone $_REPO_TO_CLONE'
     ]
 
-  - name: 'ubuntu'
-    id: 'just do an ls'
+  - name: 'node:16-alpine'
+    id: 'run generateCloudBuild'
     entrypoint: 'bash'
     args: [
       '-c',
-      'ls'
+      'cd cloudbuild_generator && pwd && npm install && node generateCloudbuild.js'
     ]
 
 
