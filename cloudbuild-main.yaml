@@ -37,7 +37,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'cd cloudbuild_generator && pwd && npm install && node generateCloudBuild.js'
+      'cd cloudbuild_generator && npm install && node generateCloudBuild.js /workspace/$_REPOSITORY_NAME/brianpipeline.yaml'
     ]
 
 
