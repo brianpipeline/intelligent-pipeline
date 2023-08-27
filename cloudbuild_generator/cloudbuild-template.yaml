@@ -1,8 +1,8 @@
 substitutions:
   # Repository Specific configuration. DevOps can change these as needed
-  _APP_NAME: $(body)
+  _APP_NAME: $(body.message.data.repositoryName)
   _APP_VERSION: '0.1'
-  _REPO_TO_CLONE: $(body)
+  _REPO_TO_CLONE: $(body.message.data.cloneUrl)
   _SERVICE_NAME: {{serviceName}}
   _SERVICE_ACCOUNT: TBD
 
@@ -12,14 +12,6 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
-  - name: 'ubuntu'
-    id: 'Print results'
-    entrypoint: 'bash'
-    args: [
-      '-c',
-      'echo $_REPO_TO_CLONE'
-    ]
-
   - name: 'gcr.io/cloud-builders/git'
     id: 'Clone repo'
     entrypoint: 'bash'
