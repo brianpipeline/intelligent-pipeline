@@ -25,7 +25,7 @@ steps:
     ]
 
   - name: 'gcr.io/cloud-builders/git'
-    id: 'Clone intelligent pipeline'
+    id: 'Clone webhook repo'
     entrypoint: 'bash'
     args: [
       '-c',
