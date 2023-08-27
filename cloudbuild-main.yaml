@@ -37,7 +37,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'cd cloudbuild_generator && pwd && npm install && node generateCloudbuild.js'
+      'cd cloudbuild_generator && pwd && npm install && node generateCloudBuild.js'
     ]
 
 
