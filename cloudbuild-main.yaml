@@ -21,8 +21,18 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'git clone $_REPO_TO_CLONE && ls'
+      'git clone $_REPO_TO_CLONE'
     ]
+
+  - name: 'ubuntu'
+    id: 'just do an ls'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'ls'
+    ]
+
+
   # Build the container image
 #  - name: "gcr.io/cloud-builders/docker"
 #    args:
