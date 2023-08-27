@@ -47,7 +47,14 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'gcloud builds triggers delete $_REPOSITORY_NAME-pubsub-trigger'
+      '
+      if `gcloud builds triggers list | grep -q "hello-world"`;
+      then
+        gcloud builds triggers delete $_REPOSITORY_NAME-pubsub-trigger
+      else
+        echo "trigger does not exist, so we are creating it now."
+      fi
+      '
     ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
