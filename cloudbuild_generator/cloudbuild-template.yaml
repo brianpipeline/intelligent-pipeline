@@ -17,7 +17,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'cd /workspace && git clone $_REPO_TO_CLONE && ls'
+      'git clone $_REPO_TO_CLONE'
     ]
 
   # Build the container image
@@ -26,18 +26,17 @@ steps:
     entrypoint: 'bash'
     args: [
       "-c",
-      "ls && cd /workspace && ls && {{ buildArgs }}"
+      "cd $_APP_NAME && {{ buildArgs }}"
     ]
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build docker image'
+    entrypoint: 'bash'
     args:
       [
-        'build',
-        '-f',
-        '{{dockerfilePath}}',
-        'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}'
+        '-c',
+        'cd $_APP_NAME && docker build -f {{dockerfilePath}} us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}'
       ]
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
