@@ -1,13 +1,59 @@
-import fs from "fs";
+import { promises as fs } from "fs";
 import YAML from "yaml";
+import Handlebars from "handlebars";
 
-const file = fs.readFileSync(process.argv[2], "utf8");
-const {
-  "dockerfile.path": dockerfilePath,
+async function readBrianPipelineYaml(brianPipelineFilePath) {
+  const file = await fs.readFile(brianPipelineFilePath, "utf8");
+  return YAML.parse(file);
+}
+
+async function readCloudBuildTemplate(cloudBuildTemplateFilePath) {
+  return await fs.readFile(
+    cloudBuildTemplateFilePath,
+    "utf8"
+  );
+}
+
+function generateFileBasedOffTemplate(
+  templateString,
   buildContainer,
-  envsToDeployTo: envs,
-} = YAML.parse(file);
+  serviceName,
+  dockerfilePath
+) {
+  const template = Handlebars.compile(templateString);
 
-console.log(envs);
+  let buildImage = "";
+  let buildArgs = "";
+  if (buildContainer == "java17") {
+    buildImage = "gradle:7.6.1-jdk17";
+    buildArgs = "gradle build";
+  }
+  const contents = template({
+    serviceName,
+    buildImage,
+    buildArgs,
+    dockerfilePath,
+  });
+  return contents;
+}
 
-console.log(process.argv[2]);
+async function generateCloudBuildYaml(brianPipelineFilePath, cloudBuildTemplateFilePath) {
+  const {
+    "dockerfile.path": dockerfilePath,
+    buildContainer,
+    envsToDeployTo: envs,
+    serviceName,
+  } = await readBrianPipelineYaml(brianPipelineFilePath);
+
+  const templateString = await readCloudBuildTemplate(cloudBuildTemplateFilePath);
+  const contents = generateFileBasedOffTemplate(
+    templateString,
+    buildContainer,
+    serviceName,
+    dockerfilePath
+  );
+
+  fs.writeFile("cloudbuild.yaml", contents);
+}
+
+generateCloudBuildYaml(process.argv[2], process.argv[3]);

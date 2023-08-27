@@ -1,2 +1,3 @@
 .idea
 node_modules
+cloudbuild_generator/cloudbuild.yaml

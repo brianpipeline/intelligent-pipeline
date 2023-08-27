@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "handlebars": "^4.7.8",
     "yaml": "^2.3.1"
   }
 }

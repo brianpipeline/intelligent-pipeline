@@ -37,42 +37,15 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'cd cloudbuild_generator && npm install && node generateCloudBuild.js /workspace/$_REPOSITORY_NAME/brianpipeline.yaml'
+      'cd cloudbuild_generator 
+      && npm install 
+      && node generateCloudBuild.js /workspace/$_REPOSITORY_NAME/brianpipeline.yaml /workspace/cloudbuild_generator/cloudbuild-template.yaml'
     ]
 
-
-  # Build the container image
-#  - name: "gcr.io/cloud-builders/docker"
-#    args:
-#      [
-#        "build",
-#        "-t",
-#        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}",
-#        ".",
-#      ]
-#    id: Building the container image
-#
-#  # Push the container image to Container Registry
-#  - name: "gcr.io/cloud-builders/docker"
-#    args:
-#      [
-#        "push",
-#        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}",
-#      ]
-#    id: Pushing the image to registry
-#
-#  # Deploy container image to Cloud Run
-#  - name: "gcr.io/cloud-builders/gcloud"
-#    args:
-#      [
-#        "run",
-#        "deploy",
-#        "${_REPOSITORY}",
-#        "--image",
-#        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}",
-#        "--region",
-#        "${_REGION}",
-#        "--platform",
-#        "managed",
-#        "--allow-unauthenticated",
-#      ]
+  - name: 'ubuntu'
+    id: 'Do another ls'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'cd cloudbuild_generator && ls'
+    ]

@@ -1,0 +1,67 @@
+substitutions:
+  # Repository Specific configuration. DevOps can change these as needed
+  _APP_NAME: $(body.repository.name)
+  _APP_VERSION: '0.1'
+  _REPO_TO_CLONE: $(body.repository.clone_url)
+  _SERVICE_NAME: {{serviceName}}
+  _SERVICE_ACCOUNT: TBD
+
+
+options:
+  substitution_option: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone repo'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone $_REPO_TO_CLONE'
+    ]
+
+  # Build the container image
+  - name: '{{buildImage}}'
+    id: 'build project'
+    entrypoint: 'bash'
+    args: [
+      "-c",
+      "{{ buildArgs }}"
+    ]
+
+  # Push the container image to Container Registry
+  - name: gcr.io/cloud-builders/docker'
+    id: 'Build docker image'
+    args:
+      [
+        'build',
+        '-f',
+        '{{dockerfilePath}}'
+        'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}',
+      ]
+  # Push the container image to Container Registry
+  - name: gcr.io/cloud-builders/docker'
+    id: 'Push docker image'
+    args:
+      [
+        'push',
+        'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}',
+      ]
+
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Deploy to Cloud Run'
+    entrypoint: 'bash'
+    args:
+      [
+        '-c'
+        'gcloud run deploy $_SERVICE_NAME
+        --service-account=$_SERVICE_ACCOUNT
+        --image=us-central1-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_APP_NAME:$_APP_VERSION
+        --ingress=all
+        --allow-unauthenticated
+        --min-instances=1
+        --max-instances=1
+        --project=$_PROJECT_ID
+        --port=8080',
+      ]
