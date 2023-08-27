@@ -1,0 +1,48 @@
+substitutions:
+  # Repository Specific configuration. DevOps can change these as needed
+  _REPOSITORY: YOUR_CONTAINER_REPOSITORY_NAME
+#  _IMAGE_NAME: $(body.payload)
+#  _REGION: $(body.payload)
+
+options:
+  substitution_option: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: 'ubuntu'
+    args: [ 'echo', 'hello world' ]
+  # Build the container image
+#  - name: "gcr.io/cloud-builders/docker"
+#    args:
+#      [
+#        "build",
+#        "-t",
+#        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}",
+#        ".",
+#      ]
+#    id: Building the container image
+#
+#  # Push the container image to Container Registry
+#  - name: "gcr.io/cloud-builders/docker"
+#    args:
+#      [
+#        "push",
+#        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}",
+#      ]
+#    id: Pushing the image to registry
+#
+#  # Deploy container image to Cloud Run
+#  - name: "gcr.io/cloud-builders/gcloud"
+#    args:
+#      [
+#        "run",
+#        "deploy",
+#        "${_REPOSITORY}",
+#        "--image",
+#        "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}",
+#        "--region",
+#        "${_REGION}",
+#        "--platform",
+#        "managed",
+#        "--allow-unauthenticated",
+#      ]
