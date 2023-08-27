@@ -1,8 +1,8 @@
 substitutions:
   # Repository Specific configuration. DevOps can change these as needed
-  _APP_NAME: $(body.repository.name)
+  _APP_NAME: $(body.repositoryName)
   _APP_VERSION: '0.1'
-  _REPO_TO_CLONE: $(body.repository.clone_url)
+  _REPO_TO_CLONE: $(body.cloneUrl)
   _SERVICE_NAME: {{serviceName}}
   _SERVICE_ACCOUNT: TBD
 
