@@ -17,7 +17,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'git clone $_REPO_TO_CLONE'
+      'cd /workspace && git clone $_REPO_TO_CLONE'
     ]
 
   # Build the container image
