@@ -1,8 +1,7 @@
 substitutions:
   # Repository Specific configuration. DevOps can change these as needed
   _REPOSITORY: YOUR_CONTAINER_REPOSITORY_NAME
-#  _IMAGE_NAME: $(body.payload)
-#  _REGION: $(body.payload)
+  _REPO_TO_CLONE: $(body.payload.repository.clone_url)
 
 options:
   substitution_option: ALLOW_LOOSE
@@ -10,7 +9,12 @@ options:
 
 steps:
   - name: 'ubuntu'
-    args: [ 'echo', 'hello world' ]
+    id: 'Print results'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'echo $_REPO_TO_CLONE'
+    ]
   # Build the container image
 #  - name: "gcr.io/cloud-builders/docker"
 #    args:
