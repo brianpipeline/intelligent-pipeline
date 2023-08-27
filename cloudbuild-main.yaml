@@ -17,7 +17,15 @@ steps:
     ]
 
   - name: 'gcr.io/cloud-builders/git'
-    id: 'Clone repo'
+    id: 'Clone intelligent pipeline'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone https://github.com/brianpipeline/intelligent-pipeline'
+    ]
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone intelligent pipeline'
     entrypoint: 'bash'
     args: [
       '-c',

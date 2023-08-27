@@ -1,0 +1,3 @@
+dockerfile.path: "."
+buildContainer: java17
+envsToDeployTo: ["dev", "stage", "prod"]
