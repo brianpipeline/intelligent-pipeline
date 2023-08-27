@@ -17,7 +17,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'cd /workspace && git clone $_REPO_TO_CLONE'
+      'cd /workspace && git clone $_REPO_TO_CLONE && ls'
     ]
 
   # Build the container image
@@ -26,7 +26,7 @@ steps:
     entrypoint: 'bash'
     args: [
       "-c",
-      "{{ buildArgs }}"
+      "ls && cd /workspace && ls && {{ buildArgs }}"
     ]
 
   # Push the container image to Container Registry
