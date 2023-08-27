@@ -43,6 +43,14 @@ steps:
     ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Delete pubsub trigger if it exists.'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'gcloud builds triggers delete $_REPOSITORY_NAME-pubsub-trigger'
+    ]
+
+  - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub trigger.'
     entrypoint: 'bash'
     args: [
