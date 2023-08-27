@@ -42,10 +42,14 @@ steps:
       && node generateCloudBuild.js /workspace/$_REPOSITORY_NAME/brianpipeline.yaml /workspace/cloudbuild_generator/cloudbuild-template.yaml'
     ]
 
-  - name: 'ubuntu'
-    id: 'Do another ls'
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Create new pubsub trigger.'
     entrypoint: 'bash'
     args: [
       '-c',
-      'cd cloudbuild_generator && ls'
+      'gcloud builds triggers create pubsub 
+       --name=$_REPOSITORY_NAME-pubsub-trigger 
+       --topic=projects/cloud-build-pipeline-396819/subscriptions/ci-cd-sub 
+       --trigger-config=/workspace/cloudbuild_generator/cloudbuild.yaml
+       --region=us-central1'
     ]
