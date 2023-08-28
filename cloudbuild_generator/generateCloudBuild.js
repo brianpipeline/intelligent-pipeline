@@ -8,10 +8,7 @@ async function readBrianPipelineYaml(brianPipelineFilePath) {
 }
 
 async function readCloudBuildTemplate(cloudBuildTemplateFilePath) {
-  return await fs.readFile(
-    cloudBuildTemplateFilePath,
-    "utf8"
-  );
+  return await fs.readFile(cloudBuildTemplateFilePath, "utf8");
 }
 
 function generateFileBasedOffTemplate(
@@ -34,10 +31,13 @@ function generateFileBasedOffTemplate(
     buildArgs,
     dockerfilePath,
   });
-  return contents;
+  return contents.replace(/&amp;/g, "&");
 }
 
-async function generateCloudBuildYaml(brianPipelineFilePath, cloudBuildTemplateFilePath) {
+async function generateCloudBuildYaml(
+  brianPipelineFilePath,
+  cloudBuildTemplateFilePath
+) {
   const {
     "dockerfile.path": dockerfilePath,
     buildContainer,
@@ -45,7 +45,9 @@ async function generateCloudBuildYaml(brianPipelineFilePath, cloudBuildTemplateF
     serviceName,
   } = await readBrianPipelineYaml(brianPipelineFilePath);
 
-  const templateString = await readCloudBuildTemplate(cloudBuildTemplateFilePath);
+  const templateString = await readCloudBuildTemplate(
+    cloudBuildTemplateFilePath
+  );
   const contents = generateFileBasedOffTemplate(
     templateString,
     buildContainer,
