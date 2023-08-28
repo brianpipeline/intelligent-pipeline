@@ -92,5 +92,5 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/ci-cd \
+        gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME \
         --message='{"repositoryName": "$_REPOSITORY_NAME", "cloneUrl": "$_REPO_TO_CLONE"}'
