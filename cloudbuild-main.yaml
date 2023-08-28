@@ -50,7 +50,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if `gcloud builds triggers list | grep -q "hello-world"`;
+        if `gcloud builds triggers list | grep -q "$_REPOSITORY_NAME"`;
         then
           gcloud builds triggers delete $_REPOSITORY_NAME-pubsub-trigger
         else
