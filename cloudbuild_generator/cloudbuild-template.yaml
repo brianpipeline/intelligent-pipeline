@@ -52,7 +52,7 @@ steps:
     args:
       [
         '-c',
-        'cd $_APP_NAME && docker build -f {{dockerfilePath}} us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}'
+        'cd $_APP_NAME && ls && docker build -f {{dockerfilePath}} us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}'
       ]
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
