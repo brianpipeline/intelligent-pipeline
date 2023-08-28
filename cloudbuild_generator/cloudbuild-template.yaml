@@ -5,7 +5,7 @@ substitutions:
   _REPO_TO_CLONE: $(body.message.data.cloneUrl)
   _SERVICE_NAME: {{serviceName}}
   _REPOSITORY: {{serviceName}}
-  _SERVICE_ACCOUNT: TBD
+  _SERVICE_ACCOUNT: cloud-run@cloud-build-pipeline-396819.iam.gserviceaccount.com
 
 
 options:
@@ -79,6 +79,6 @@ steps:
         --allow-unauthenticated
         --min-instances=1
         --max-instances=1
-        --project=$_PROJECT_ID
+        --project=$PROJECT_ID
         --port=8080'
       ]
