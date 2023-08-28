@@ -60,10 +60,17 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub topic.'
     entrypoint: 'bash'
-    args: [
-      '-c',
-      'gcloud pubsub topics create $_REPOSITORY_NAME'
-    ]
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if `gcloud pubsub topics list --filter="name.scope(topic):'$_REPOSITORY_NAME'" | grep -q "$_REPOSITORY_NAME"`;
+        then
+          echo "Pubsub topic already exists"
+        else
+          gcloud pubsub topics create $_REPOSITORY_NAME
+        fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub trigger.'
