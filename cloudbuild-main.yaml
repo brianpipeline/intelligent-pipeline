@@ -73,8 +73,10 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Publish pubsub message'
     entrypoint: 'bash'
-    args: [
-      '-c',
-      'gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/ci-cd
-      --message="{"repositoryName": "$_REPOSITORY_NAME", "cloneUrl": "$_REPO_TO_CLONE"}"'
-    ]
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/ci-cd \
+        --message='{"repositoryName": "$_REPOSITORY_NAME", "cloneUrl": "$_REPO_TO_CLONE"}'
