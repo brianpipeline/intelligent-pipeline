@@ -56,7 +56,14 @@ steps:
         else
           echo "trigger does not exist, so we are creating it now."
         fi
-    
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Create new pubsub topic.'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'gcloud pubsub topics create $_REPOSITORY_NAME'
+    ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub trigger.'
@@ -65,7 +72,7 @@ steps:
       '-c',
       'gcloud builds triggers create pubsub 
        --name=$_REPOSITORY_NAME-pubsub-trigger 
-       --topic=projects/cloud-build-pipeline-396819/topics/ci-cd
+       --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME
        --inline-config=/workspace/cloudbuild_generator/cloudbuild.yaml
        --region=global'
     ]
