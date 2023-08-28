@@ -4,6 +4,7 @@ substitutions:
   _APP_VERSION: '0.1'
   _REPO_TO_CLONE: $(body.message.data.cloneUrl)
   _SERVICE_NAME: {{serviceName}}
+  _REPOSITORY: {{serviceName}}
   _SERVICE_ACCOUNT: TBD
 
 
@@ -20,11 +21,11 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if `gcloud artifacts repositories list | grep -q "$_REPOSITORY_NAME"`;
+        if `gcloud artifacts repositories list | grep -q "$_REPOSITORY"`;
         then
           echo "Repository already exists."
         else
-          gcloud artifacts repositories create $_REPOSITORY_NAME --repository-format=docker --location=us-central1
+          gcloud artifacts repositories create $_REPOSITORY --repository-format=docker --location=us-central1
         fi
 
   - name: 'gcr.io/cloud-builders/git'
