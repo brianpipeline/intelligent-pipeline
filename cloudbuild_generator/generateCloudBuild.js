@@ -26,7 +26,7 @@ function generateFileBasedOffTemplate(
   let buildArgs = "";
   if (buildContainer == "java17") {
     buildImage = "gradle:7.6.1-jdk17";
-    buildArgs = "gradle build";
+    buildArgs = "gradle build && cp -r build ../build";
   }
   const contents = template({
     serviceName,
