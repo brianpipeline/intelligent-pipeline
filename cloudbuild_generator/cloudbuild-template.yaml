@@ -54,7 +54,7 @@ steps:
       "cd $_REPO_NAME && {{ buildArgs }}"
     ]
   
-    - name: 'node:16'
+  - name: 'node:16'
     id: 'run generateDockerfile'
     entrypoint: 'bash'
     args: [
