@@ -53,7 +53,6 @@ async function generateCloudBuildYaml(
   cloudBuildTemplateFilePath
 ) {
   const {
-    "dockerfile.path": dockerfilePath,
     buildContainer,
     envsToDeployTo: envs,
     serviceName,
@@ -70,8 +69,8 @@ async function generateCloudBuildYaml(
     buildContainer,
     serviceName,
     dockerfilePath,
-    appName,
-    appVersion
+    projectName,
+    projectVersion
   );
 
   fs.writeFile("cloudbuild.yaml", contents);
