@@ -39,7 +39,7 @@ steps:
       '-c',
       'cd cloudbuild_generator 
       && npm install 
-      && node generateCloudBuild.js /workspace/$_REPOSITORY_NAME/brianpipeline.yaml /workspace/cloudbuild_generator/cloudbuild-template.yaml'
+      && node generateCloudBuild.js /workspace/$_REPOSITORY_NAME/brianpipeline.yaml /workspace/$_REPOSITORY_NAME/build.gradle /workspace/$_REPOSITORY_NAME/settings.gradle /workspace/cloudbuild_generator/cloudbuild-template.yaml'
     ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
