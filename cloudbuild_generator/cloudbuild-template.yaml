@@ -1,10 +1,11 @@
 substitutions:
   # Repository Specific configuration. DevOps can change these as needed
-  _APP_NAME: $(body.message.data.repositoryName)
-  _APP_VERSION: '0.1'
+  _APP_NAME: {{ appName }}
+  _APP_VERSION: {{ appVersion }}
+  _REPO_NAME: $(body.message.data.repositoryName)
   _REPO_TO_CLONE: $(body.message.data.cloneUrl)
-  _SERVICE_NAME: {{serviceName}}
-  _REPOSITORY: {{serviceName}}
+  _SERVICE_NAME: {{ serviceName }}
+  _REPOSITORY: {{ serviceName }}
   _SERVICE_ACCOUNT: cloud-run@cloud-build-pipeline-396819.iam.gserviceaccount.com
 
 
@@ -13,6 +14,14 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone intelligent pipeline'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone https://github.com/brianpipeline/intelligent-pipeline'
+    ]
+
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create artifact registry repository'
     entrypoint: 'bash'
@@ -42,7 +51,17 @@ steps:
     entrypoint: 'bash'
     args: [
       "-c",
-      "cd $_APP_NAME && {{ buildArgs }}"
+      "cd $_REPO_NAME && {{ buildArgs }}"
+    ]
+  
+    - name: 'node:16'
+    id: 'run generateDockerfile'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'cd intelligent-pipeline/dockerfile_generator 
+      && npm install 
+      && node generateDockerFile.js ${_APP_NAME} ${_APP_VERSION} /workspace/intelligent-pipeline/dockerfile_generator/dockerfiletemplate'
     ]
 
   # Push the container image to Container Registry
@@ -52,10 +71,11 @@ steps:
     args:
       [
         '-c',
-        'docker build -f $_APP_NAME/{{dockerfilePath}} 
+        'docker build -f /workspace/intelligent-pipeline/dockerfile_generator/Dockerfile
         -t us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}
         .'
       ]
+
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push docker image'

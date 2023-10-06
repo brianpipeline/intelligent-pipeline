@@ -2,3 +2,6 @@
 node_modules
 cloudbuild_generator/cloudbuild.yaml
 brianpipeline.yaml
+dockerfile_generator/settings.gradle
+dockerfile_generator/build.gradle
+dockerfile_generator/Dockerfile

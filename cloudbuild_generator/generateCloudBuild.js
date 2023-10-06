@@ -11,11 +11,23 @@ async function readCloudBuildTemplate(cloudBuildTemplateFilePath) {
   return await fs.readFile(cloudBuildTemplateFilePath, "utf8");
 }
 
+async function getVersionFromBuildGradle(buildGradlePath) {
+  const file = await fs.readFile(buildGradlePath, "utf8");
+  return /version = '(.*)'/.exec(file)[1];
+}
+
+async function getNameFromSettingsGradle(settingsGradlePath) {
+  const file = await fs.readFile(settingsGradlePath, "utf8");
+  return /rootProject.name = '(.*)'/.exec(file)[1];
+}
+
 function generateFileBasedOffTemplate(
   templateString,
   buildContainer,
   serviceName,
-  dockerfilePath
+  dockerfilePath,
+  appName,
+  appVersion
 ) {
   const template = Handlebars.compile(templateString);
 
@@ -36,6 +48,8 @@ function generateFileBasedOffTemplate(
 
 async function generateCloudBuildYaml(
   brianPipelineFilePath,
+  buildGradlePath,
+  settingsGradlePath,
   cloudBuildTemplateFilePath
 ) {
   const {
@@ -45,6 +59,9 @@ async function generateCloudBuildYaml(
     serviceName,
   } = await readBrianPipelineYaml(brianPipelineFilePath);
 
+  const projectName = await getNameFromSettingsGradle(settingsGradlePath);
+  const projectVersion = await getVersionFromBuildGradle(buildGradlePath);
+
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
   );
@@ -52,10 +69,17 @@ async function generateCloudBuildYaml(
     templateString,
     buildContainer,
     serviceName,
-    dockerfilePath
+    dockerfilePath,
+    appName,
+    appVersion
   );
 
   fs.writeFile("cloudbuild.yaml", contents);
 }
 
-generateCloudBuildYaml(process.argv[2], process.argv[3]);
+generateCloudBuildYaml(
+  process.argv[2],
+  process.argv[3],
+  process.argv[4],
+  process.argv[5]
+);
