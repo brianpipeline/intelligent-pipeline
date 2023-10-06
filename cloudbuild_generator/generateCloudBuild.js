@@ -25,7 +25,6 @@ function generateFileBasedOffTemplate(
   templateString,
   buildContainer,
   serviceName,
-  dockerfilePath,
   appName,
   appVersion
 ) {
@@ -41,7 +40,8 @@ function generateFileBasedOffTemplate(
     serviceName,
     buildImage,
     buildArgs,
-    dockerfilePath,
+    appName,
+    appVersion
   });
   return contents.replace(/&amp;/g, "&");
 }
@@ -68,7 +68,6 @@ async function generateCloudBuildYaml(
     templateString,
     buildContainer,
     serviceName,
-    dockerfilePath,
     projectName,
     projectVersion
   );
