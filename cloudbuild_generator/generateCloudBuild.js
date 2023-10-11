@@ -3,7 +3,7 @@ import YAML from "yaml";
 import Handlebars from "handlebars";
 
 function getBranchName(branchRef) {
-  return /.*[\/](.*)/.exec(branchRef)[1];
+  return /heads\/(.*)/.exec(branchRef)[1];
 }
 
 async function readBrianPipelineYaml(brianPipelineFilePath) {
@@ -88,7 +88,11 @@ async function generateCloudBuildYaml(
   const originalAppVersion = await getVersionFromBuildGradle(buildGradlePath);
 
   const projectName = await getNameFromSettingsGradle(settingsGradlePath);
-  const projectVersion = getProjectVersion(branchName, originalAppVersion, buildId);
+  const projectVersion = getProjectVersion(
+    branchName,
+    originalAppVersion,
+    buildId
+  );
 
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
