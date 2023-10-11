@@ -88,7 +88,7 @@ async function generateCloudBuildYaml(
   const originalAppVersion = await getVersionFromBuildGradle(buildGradlePath);
 
   const projectName = await getNameFromSettingsGradle(settingsGradlePath);
-  const projectVersion = getProjectVersion(branchName, originalAppVersion);
+  const projectVersion = getProjectVersion(branchName, originalAppVersion, buildId);
 
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
