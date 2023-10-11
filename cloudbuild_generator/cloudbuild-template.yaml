@@ -22,21 +22,6 @@ steps:
       'git clone https://github.com/brianpipeline/intelligent-pipeline'
     ]
 
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Create artifact registry repository'
-    entrypoint: 'bash'
-    args:
-      - '-eEuo'
-      - 'pipefail'
-      - '-c'
-      - |-
-        if `gcloud artifacts repositories list | grep -q "$_REPOSITORY"`;
-        then
-          echo "Repository already exists."
-        else
-          gcloud artifacts repositories create $_REPOSITORY --repository-format=docker --location=us-central1
-        fi
-
   - name: 'gcr.io/cloud-builders/git'
     id: 'Clone repo'
     entrypoint: 'bash'
@@ -53,6 +38,21 @@ steps:
       "-c",
       "cd $_REPO_NAME && {{ buildArgs }}"
     ]
+  {{#ifIsMainOrRelease branchName}}
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Create artifact registry repository'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if `gcloud artifacts repositories list | grep -q "$_REPOSITORY"`;
+        then
+          echo "Repository already exists."
+        else
+          gcloud artifacts repositories create $_REPOSITORY --repository-format=docker --location=us-central1
+        fi
   
   - name: 'node:16'
     id: 'run generateDockerfile'
@@ -103,3 +103,4 @@ steps:
         --region=us-central1
         --port=8080'
       ]
+  {{/ifIsMainOrRelease}}

@@ -2,6 +2,7 @@ substitutions:
   # Repository Specific configuration. DevOps can change these as needed
   _REPOSITORY_NAME: $(body.repository.name)
   _REPO_TO_CLONE: $(body.repository.clone_url)
+  _BRANCH_NAME: $(body.ref)
 
 options:
   substitution_option: ALLOW_LOOSE
@@ -39,7 +40,12 @@ steps:
       '-c',
       'cd cloudbuild_generator 
       && npm install 
-      && node generateCloudBuild.js /workspace/$_REPOSITORY_NAME/brianpipeline.yaml /workspace/$_REPOSITORY_NAME/build.gradle /workspace/$_REPOSITORY_NAME/settings.gradle /workspace/cloudbuild_generator/cloudbuild-template.yaml'
+      && node generateCloudBuild.js 
+      /workspace/$_REPOSITORY_NAME/brianpipeline.yaml 
+      /workspace/$_REPOSITORY_NAME/build.gradle 
+      /workspace/$_REPOSITORY_NAME/settings.gradle 
+      /workspace/cloudbuild_generator/cloudbuild-template.yaml 
+      $_BRANCH_NAME'
     ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
