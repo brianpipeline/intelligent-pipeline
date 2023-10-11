@@ -2,6 +2,7 @@ substitutions:
   # Repository Specific configuration. DevOps can change these as needed
   _APP_NAME: {{ appName }}
   _APP_VERSION: {{ appVersion }}
+  _ORIGINAL_APP_VERSION: {{ originalAppVersion }}
   _REPO_NAME: $(body.message.data.repositoryName)
   _REPO_TO_CLONE: $(body.message.data.cloneUrl)
   _SERVICE_NAME: {{ serviceName }}
@@ -61,7 +62,7 @@ steps:
       '-c',
       'cd intelligent-pipeline/dockerfile_generator 
       && npm install 
-      && node generateDockerFile.js ${_APP_NAME} ${_APP_VERSION} /workspace/intelligent-pipeline/dockerfile_generator/dockerfiletemplate'
+      && node generateDockerFile.js ${_APP_NAME} ${_ORIGINAL_APP_VERSION} /workspace/intelligent-pipeline/dockerfile_generator/dockerfiletemplate'
     ]
 
   # Push the container image to Container Registry

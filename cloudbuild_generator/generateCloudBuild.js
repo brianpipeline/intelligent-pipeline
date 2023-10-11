@@ -25,13 +25,14 @@ async function getNameFromSettingsGradle(settingsGradlePath) {
   return /rootProject.name = '(.*)'/.exec(file)[1];
 }
 
-async function getProjectVersion(branchName, buildGradlePath) {
-  const version = await getVersionFromBuildGradle(buildGradlePath);
+function getProjectVersion(branchName, originalAppVersion) {
   if (branchName === "main") {
-    return /([^\/]+$)/.exec(version)[1].replace("SNAPSHOT", Date.now());
+    return /([^\/]+$)/
+      .exec(originalAppVersion)[1]
+      .replace("SNAPSHOT", Date.now());
   }
   if (branchName.includes("release")) {
-    return /([^\/]+$)/.exec(version)[1].replace("-SNAPSHOT", "");
+    return /([^\/]+$)/.exec(originalAppVersion)[1].replace("-SNAPSHOT", "");
   }
   return "";
 }
@@ -41,7 +42,8 @@ function generateFileBasedOffTemplate(
   buildContainer,
   serviceName,
   appName,
-  appVersion,
+  appVersionWithTimestamp,
+  originalAppVersion,
   branchName
 ) {
   Handlebars.registerHelper("ifIsMainOrRelease", function (arg1, options) {
@@ -63,7 +65,8 @@ function generateFileBasedOffTemplate(
     buildImage,
     buildArgs,
     appName,
-    appVersion,
+    appVersion: appVersionWithTimestamp,
+    originalAppVersion,
     branchName,
   });
   return contents.replace(/&amp;/g, "&");
@@ -83,9 +86,10 @@ async function generateCloudBuildYaml(
   } = await readBrianPipelineYaml(brianPipelineFilePath);
 
   const branchName = getBranchName(branchRef);
+  const originalAppVersion = await getVersionFromBuildGradle(buildGradlePath);
 
   const projectName = await getNameFromSettingsGradle(settingsGradlePath);
-  const projectVersion = await getProjectVersion(branchName, buildGradlePath);
+  const projectVersion = getProjectVersion(branchName, originalAppVersion);
 
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
@@ -96,6 +100,7 @@ async function generateCloudBuildYaml(
     serviceName,
     projectName,
     projectVersion,
+    originalAppVersion,
     branchName
   );
 
