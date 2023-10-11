@@ -27,9 +27,7 @@ async function getNameFromSettingsGradle(settingsGradlePath) {
 
 function getProjectVersion(branchName, originalAppVersion) {
   if (branchName === "main") {
-    return /([^\/]+$)/
-      .exec(originalAppVersion)[1]
-      .replace("SNAPSHOT", Date.now());
+    return /([^\/]+$)/.exec(originalAppVersion)[1] + `-${Date.now()}`;
   }
   if (branchName.includes("release")) {
     return /([^\/]+$)/.exec(originalAppVersion)[1].replace("-SNAPSHOT", "");
