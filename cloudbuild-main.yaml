@@ -3,6 +3,7 @@ substitutions:
   _REPOSITORY_NAME: $(body.repository.name)
   _REPO_TO_CLONE: $(body.repository.clone_url)
   _BRANCH_NAME: $(body.ref)
+  _SHORT_BUILD_ID: ${BUILD_ID:0:8}
 
 options:
   substitution_option: ALLOW_LOOSE
@@ -45,7 +46,8 @@ steps:
       /workspace/$_REPOSITORY_NAME/build.gradle 
       /workspace/$_REPOSITORY_NAME/settings.gradle 
       /workspace/cloudbuild_generator/cloudbuild-template.yaml 
-      $_BRANCH_NAME'
+      $_BRANCH_NAME
+      $_SHORT_BUILD_ID'
     ]
 
   - name: 'gcr.io/cloud-builders/gcloud'

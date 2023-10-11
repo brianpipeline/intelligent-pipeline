@@ -25,9 +25,9 @@ async function getNameFromSettingsGradle(settingsGradlePath) {
   return /rootProject.name = '(.*)'/.exec(file)[1];
 }
 
-function getProjectVersion(branchName, originalAppVersion) {
+function getProjectVersion(branchName, originalAppVersion, buildId) {
   if (branchName === "main") {
-    return /([^\/]+$)/.exec(originalAppVersion)[1] + `-${Date.now()}`;
+    return /([^\/]+$)/.exec(originalAppVersion)[1] + `-${buildId}`;
   }
   if (branchName.includes("release")) {
     return /([^\/]+$)/.exec(originalAppVersion)[1].replace("-SNAPSHOT", "");
@@ -75,7 +75,8 @@ async function generateCloudBuildYaml(
   buildGradlePath,
   settingsGradlePath,
   cloudBuildTemplateFilePath,
-  branchRef
+  branchRef,
+  buildId
 ) {
   const {
     buildContainer,
@@ -110,5 +111,6 @@ generateCloudBuildYaml(
   process.argv[3],
   process.argv[4],
   process.argv[5],
-  process.argv[6]
+  process.argv[6],
+  process.argv[7]
 );
