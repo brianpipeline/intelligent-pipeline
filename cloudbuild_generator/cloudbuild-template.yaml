@@ -91,7 +91,7 @@ steps:
   {{#each envs}}
 
   - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Create new pubsub topic.'
+    id: 'Deploy to cloud run for {{this}}.'
     entrypoint: 'bash'
     args:
       - '-eEuo'
