@@ -111,7 +111,6 @@ steps:
         --port=8080'
       ]
 
-  # Note that I'm not clearing tags here. 
   # The only way to do a finally block is to listen to see if the build fails, then clear green tags after that associated with
   # this build. I don't really want to get that working right now, but ideally that's how we'd do it.
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -124,6 +123,18 @@ steps:
         --project=$PROJECT_ID
         --region=us-central1
         --to-tags green-$_SHORT_BUILD_ID=100'
+      ]
+  
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Update traffic on green build for {{this}}'
+    entrypoint: 'bash'
+    args:
+      [
+        '-c',
+        'gcloud run services update-traffic $_SERVICE_NAME-{{this}}
+        --project=$PROJECT_ID
+        --region=us-central1
+        --clear-tags
       ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
