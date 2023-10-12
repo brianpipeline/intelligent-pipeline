@@ -86,14 +86,15 @@ steps:
         'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}'
       ]
 
+  {{#each envs}}
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Deploy to Cloud Run'
+    id: 'Deploy to Cloud Run on {{this}}'
     entrypoint: 'bash'
     args:
       [
         '-c',
-        'gcloud run deploy $_SERVICE_NAME
+        'gcloud run deploy $_SERVICE_NAME-{{this}}
         --service-account=$_SERVICE_ACCOUNT
         --image=us-central1-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_APP_NAME:$_APP_VERSION
         --ingress=all
@@ -104,4 +105,5 @@ steps:
         --region=us-central1
         --port=8080'
       ]
+  {{/each}}
   {{/ifIsMainOrRelease}}

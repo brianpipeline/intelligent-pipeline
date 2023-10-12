@@ -42,7 +42,8 @@ function generateFileBasedOffTemplate(
   appName,
   appVersionWithTimestamp,
   originalAppVersion,
-  branchName
+  branchName,
+  envs
 ) {
   Handlebars.registerHelper("ifIsMainOrRelease", function (arg1, options) {
     return String(arg1) == "main" || String(arg1).includes("release")
@@ -66,6 +67,7 @@ function generateFileBasedOffTemplate(
     appVersion: appVersionWithTimestamp,
     originalAppVersion,
     branchName,
+    envs,
   });
   return contents.replace(/&amp;/g, "&");
 }
@@ -80,7 +82,8 @@ async function generateCloudBuildYaml(
 ) {
   const {
     buildContainer,
-    envsToDeployTo: envs,
+    envsToDeployToOnMain,
+    envsToDeployToOnRelease,
     serviceName,
   } = await readBrianPipelineYaml(brianPipelineFilePath);
 
@@ -97,17 +100,46 @@ async function generateCloudBuildYaml(
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
   );
-  const contents = generateFileBasedOffTemplate(
-    templateString,
-    buildContainer,
-    serviceName,
-    projectName,
-    projectVersion,
-    originalAppVersion,
-    branchName
-  );
 
-  fs.writeFile("cloudbuild.yaml", contents);
+  if (branchName === "main") {
+    const contents = generateFileBasedOffTemplate(
+      templateString,
+      buildContainer,
+      serviceName,
+      projectName,
+      projectVersion,
+      originalAppVersion,
+      branchName,
+      envsToDeployToOnMain
+    );
+
+    fs.writeFile("cloudbuild.yaml", contents);
+  } else if (branchName.includes("release")) {
+    const contents = generateFileBasedOffTemplate(
+      templateString,
+      buildContainer,
+      serviceName,
+      projectName,
+      projectVersion,
+      originalAppVersion,
+      branchName,
+      envsToDeployToOnRelease
+    );
+
+    fs.writeFile("cloudbuild.yaml", contents);
+  } else {
+    const contents = generateFileBasedOffTemplate(
+      templateString,
+      buildContainer,
+      serviceName,
+      projectName,
+      projectVersion,
+      originalAppVersion,
+      branchName
+    );
+
+    fs.writeFile("cloudbuild.yaml", contents);
+  }
 }
 
 generateCloudBuildYaml(
