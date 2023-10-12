@@ -8,6 +8,7 @@ substitutions:
   _SERVICE_NAME: {{ serviceName }}
   _REPOSITORY: {{ serviceName }}
   _SERVICE_ACCOUNT: cloud-run@cloud-build-pipeline-396819.iam.gserviceaccount.com
+  _SHORT_BUILD_ID: ${BUILD_ID:0:8}
 
 
 options:
@@ -86,10 +87,11 @@ steps:
         'us-central1-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_APP_NAME}:${_APP_VERSION}'
       ]
 
+
   {{#each envs}}
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Deploy to Cloud Run on {{this}}'
+    id: 'Deploy green build on {{this}}'
     entrypoint: 'bash'
     args:
       [
@@ -103,7 +105,38 @@ steps:
         --max-instances=1
         --project=$PROJECT_ID
         --region=us-central1
+        --no-traffic
+        --revision-suffix=$_SHORT_BUILD_ID
+        --tag=green-$_SHORT_BUILD_ID
         --port=8080'
       ]
+
+  # Note that I'm not clearing tags here. 
+  # The only way to do a finally block is to listen to see if the build fails, then clear green tags after that associated with
+  # this build. I don't really want to get that working right now, but ideally that's how we'd do it.
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Update traffic on green build for {{this}}'
+    entrypoint: 'bash'
+    args:
+      [
+        '-c',
+        'gcloud run services update-traffic $_SERVICE_NAME-{{this}}
+        --project=$PROJECT_ID
+        --region=us-central1
+        --to-tags green-$_SHORT_BUILD_ID=100'
+      ]
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Tag new green build on {{this}} with blue'
+    entrypoint: 'bash'
+    args:
+      [
+        '-c',
+        'gcloud run services update-traffic $_SERVICE_NAME-{{this}}
+        --project=$PROJECT_ID
+        --region=us-central1
+        --update-tags=blue=$_SERVICE_NAME-$_SHORT_BUILD_ID'
+      ]
+  
   {{/each}}
   {{/ifIsMainOrRelease}}
