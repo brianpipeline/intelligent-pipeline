@@ -126,7 +126,7 @@ steps:
       ]
   
   - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Update traffic on green build for {{this}}'
+    id: 'Clear tags for {{this}}'
     entrypoint: 'bash'
     args:
       [
