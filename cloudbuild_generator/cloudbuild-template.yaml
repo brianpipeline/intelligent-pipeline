@@ -135,7 +135,7 @@ steps:
         'gcloud run services update-traffic $_SERVICE_NAME-{{this}}
         --project=$PROJECT_ID
         --region=us-central1
-        --update-tags=blue=$_SERVICE_NAME-$_SHORT_BUILD_ID'
+        --update-tags=blue=$_SERVICE_NAME-{{this}}-$_SHORT_BUILD_ID'
       ]
   
   {{/each}}
