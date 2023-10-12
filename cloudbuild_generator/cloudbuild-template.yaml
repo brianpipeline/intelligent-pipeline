@@ -98,9 +98,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        DESCRIBE_OUTPUT="$(gcloud run services describe flabs-service-stage --region=us-central1 2>&1 >/dev/null)"
-
-        if [[ -z "$DESCRIBE_OUTPUT" ]]; 
+        if [[ -z "$(gcloud run services describe $_SERVICE_NAME-{{this}} --region=us-central1 2>&1 >/dev/null)" ]]; 
         then
         	echo "Not the first time deploying this app."
 
