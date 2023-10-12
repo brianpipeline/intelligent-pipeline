@@ -134,7 +134,7 @@ steps:
         'gcloud run services update-traffic $_SERVICE_NAME-{{this}}
         --project=$PROJECT_ID
         --region=us-central1
-        --clear-tags
+        --clear-tags'
       ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
