@@ -102,34 +102,11 @@ steps:
         then
         	echo "Not the first time deploying this app."
 
-          gcloud run deploy $_SERVICE_NAME-{{this}} \
-          --service-account=$_SERVICE_ACCOUNT \ 
-          --image=us-central1-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_APP_NAME:$_APP_VERSION \
-          --ingress=all \
-          --allow-unauthenticated \
-          --min-instances=1 \
-          --max-instances=1 \
-          --project=$PROJECT_ID \
-          --region=us-central1 \
-          --no-traffic \
-          --revision-suffix=$_SHORT_BUILD_ID \
-          --tag=green-$_SHORT_BUILD_ID \
-          --port=8080
+          gcloud run deploy $_SERVICE_NAME-{{this}} --service-account=$_SERVICE_ACCOUNT --image=us-central1-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_APP_NAME:$_APP_VERSION --ingress=all --allow-unauthenticated --min-instances=1 --max-instances=1 --project=$PROJECT_ID --region=us-central1 --no-traffic --revision-suffix=$_SHORT_BUILD_ID --tag=green-$_SHORT_BUILD_ID --port=8080
         else
           echo "First time deploying this app."
 
-          gcloud run deploy $_SERVICE_NAME-{{this}} \ 
-          --service-account=$_SERVICE_ACCOUNT \
-          --image=us-central1-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_APP_NAME:$_APP_VERSION \
-          --ingress=all \
-          --allow-unauthenticated \
-          --min-instances=1 \
-          --max-instances=1 \
-          --project=$PROJECT_ID \
-          --region=us-central1 \
-          --revision-suffix=$_SHORT_BUILD_ID \
-          --tag=green-$_SHORT_BUILD_ID \
-          --port=8080
+          gcloud run deploy $_SERVICE_NAME-{{this}} --service-account=$_SERVICE_ACCOUNT --image=us-central1-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_APP_NAME:$_APP_VERSION --ingress=all --allow-unauthenticated --min-instances=1 --max-instances=1 --project=$PROJECT_ID --region=us-central1 --revision-suffix=$_SHORT_BUILD_ID --tag=green-$_SHORT_BUILD_ID --port=8080
         fi
 
   # The only way to do a finally block is to listen to see if the build fails, then clear green tags after that associated with
