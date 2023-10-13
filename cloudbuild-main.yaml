@@ -79,14 +79,14 @@ steps:
           --name=$_REPOSITORY_NAME-artifact-build \
           --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build \
           --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml \
-          --substitutions=_BRANCH_NAME=main \
+          --substitutions=_BRANCH_NAME=$_BRANCH_NAME \
           --region=global
         else
           gcloud builds triggers create pubsub \
           --name=$_REPOSITORY_NAME-artifact-build \
           --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build \
           --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml \
-          --substitutions=_BRANCH_NAME=main \
+          --substitutions=_BRANCH_NAME=$_BRANCH_NAME \
           --region=global
         fi
 
