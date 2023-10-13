@@ -1,7 +1,9 @@
 import {
   readBrianPipelineYaml,
   readCloudBuildTemplate,
-  getBranchName,
+  getVersionFromBuildGradle,
+  getNameFromSettingsGradle,
+  getProjectVersion
 } from "./commonFunctions.js";
 import Handlebars from "handlebars";
 import { promises as fs } from "fs";
@@ -13,7 +15,10 @@ function generateFileBasedOffTemplate(
   branchName,
   repoName,
   cloneUrl,
-  commitId
+  commitId,
+  appName,
+  appVersion,
+  originalAppVersion
 ) {
   const template = Handlebars.compile(templateString);
 
@@ -21,7 +26,7 @@ function generateFileBasedOffTemplate(
   let buildArgs = "";
   if (buildContainer == "java17") {
     buildImage = "gradle:7.6.1-jdk17";
-    buildArgs = "gradle build && cp -r build ../build";
+    buildArgs = "gradle assemble && cp -r build ../build";
   }
   const contents = template({
     serviceName,
@@ -31,6 +36,9 @@ function generateFileBasedOffTemplate(
     repoName,
     cloneUrl,
     commitId,
+    appName,
+    appVersion,
+    originalAppVersion
   });
   return contents.replace(/&amp;/g, "&");
 }
@@ -38,19 +46,27 @@ function generateFileBasedOffTemplate(
 async function generateCloudBuildYaml(
   brianPipelineFilePath,
   cloudBuildTemplateFilePath,
-  branchRef,
+  branchName,
   repoName,
   cloneUrl,
-  commitId
+  commitId,
+  buildGradlePath,
+  settingsGradlePath
 ) {
   const { buildContainer, serviceName } = await readBrianPipelineYaml(
     brianPipelineFilePath
   );
 
-  const branchName = getBranchName(branchRef);
-
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
+  );
+
+  const originalAppVersion = await getVersionFromBuildGradle(buildGradlePath);
+  const appName = await getNameFromSettingsGradle(settingsGradlePath);
+  const appVersion = getProjectVersion(
+    branchName,
+    originalAppVersion,
+    Date.now()
   );
 
   const contents = generateFileBasedOffTemplate(
@@ -60,10 +76,13 @@ async function generateCloudBuildYaml(
     branchName,
     repoName,
     cloneUrl,
-    commitId
+    commitId,
+    appName,
+    appVersion,
+    originalAppVersion
   );
 
-  fs.writeFile("cloudbuild-artifactbuild.yaml", contents);
+  fs.writeFile("cloudbuild-artifactpush.yaml", contents);
 }
 
 generateCloudBuildYaml(
@@ -72,5 +91,7 @@ generateCloudBuildYaml(
   process.argv[4],
   process.argv[5],
   process.argv[6],
-  process.argv[7]
+  process.argv[7],
+  process.argv[8],
+  process.argv[9]
 );

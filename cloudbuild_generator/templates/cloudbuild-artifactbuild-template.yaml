@@ -64,7 +64,84 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
         then
-          echo "hey"
+          cd cloudbuild_generator 
+          && npm install 
+          node generateArtifactPush.js \
+          /workspace/{{ repoName }}/brianpipeline.yaml  \
+          templates/cloudbuild-artifactpush-template.yaml \
+          $_BRANCH_NAME \
+          {{ repoName }} \
+          {{ cloneUrl }} \
+          $_COMMIT_ID \
+          /workspace/{{ repoName }}/build.gradle \
+          /workspace/{{ repoName }}/settings.gradle
         else
-          echo "idk"
+          echo "Not cascading - this is a feature branch."
+        fi
+  
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Create new pubsub topic.'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
+        then
+          if [[ -z "$(gcloud pubsub topics describe $_REPOSITORY_NAME-artifact-push 2>&1 >/dev/null)" ]]; 
+          then
+            echo "Pubsub topic already exists"
+          else
+            gcloud pubsub topics create $_REPOSITORY_NAME-artifact-push
+          fi
+        else
+          echo "Not cascading - this is a feature branch."
+        fi
+  
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Create artifact push pipeline.'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
+          if [[ -z "$(gcloud builds triggers describe $_REPOSITORY_NAME-artifact-push 2>&1 >/dev/null)" ]]; 
+          then
+            gcloud builds triggers delete $_REPOSITORY_NAME-artifact-push
+            gcloud builds triggers create pubsub \
+            --name=$_REPOSITORY_NAME-artifact-push \
+            --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-push \
+            --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactpush.yaml \
+            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$(echo $_BRANCH_REF | sed 's/refs\/heads\///') \
+            --region=global
+          else
+            gcloud builds triggers create pubsub \
+            --name=$_REPOSITORY_NAME-artifact-push \
+            --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-push \
+            --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactpush.yaml \
+            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$(echo $_BRANCH_REF | sed 's/refs\/heads\///') \
+            --region=global
+          fi
+        else
+          echo "Not cascading - this is a feature branch."
+        fi
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Publish pubsub message'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
+        then
+          gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build \
+          --message='{"unused": "$_REPOSITORY_NAME"}'
+        else
+          echo "Not cascading - this is a feature branch."
         fi

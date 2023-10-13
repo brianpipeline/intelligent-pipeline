@@ -2,7 +2,7 @@ substitutions:
   # Repository Specific configuration. DevOps can change these as needed
   _REPOSITORY_NAME: $(body.repository.name)
   _REPO_TO_CLONE: $(body.repository.clone_url)
-  _BRANCH_NAME: $(body.ref)
+  _BRANCH_REF: $(body.ref)
   _COMMIT_ID: $(body.head_commit.id)
   _SHORT_BUILD_ID: ${BUILD_ID:0:8}
 
@@ -45,7 +45,7 @@ steps:
       && node generateArtifactBuild.js 
       /workspace/$_REPOSITORY_NAME/brianpipeline.yaml 
       /workspace/cloudbuild_generator/templates/cloudbuild-artifactbuild-template.yaml 
-      $_BRANCH_NAME
+      $_BRANCH_REF
       $_REPOSITORY_NAME
       $_REPO_TO_CLONE'
     ]
@@ -80,14 +80,14 @@ steps:
           --name=$_REPOSITORY_NAME-artifact-build \
           --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build \
           --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml \
-          --substitutions=_COMMIT_ID=$_COMMIT_ID \
+          --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$(echo $_BRANCH_REF | sed 's/refs\/heads\///') \
           --region=global
         else
           gcloud builds triggers create pubsub \
           --name=$_REPOSITORY_NAME-artifact-build \
           --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build \
           --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml \
-          --substitutions=_COMMIT_ID=$_COMMIT_ID \
+          --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$(echo $_BRANCH_REF | sed 's/refs\/heads\///') \
           --region=global
         fi
 

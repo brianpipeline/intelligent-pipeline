@@ -89,7 +89,6 @@ async function generateCloudBuildYaml(
 
   const branchName = getBranchName(branchRef);
   const originalAppVersion = await getVersionFromBuildGradle(buildGradlePath);
-
   const projectName = await getNameFromSettingsGradle(settingsGradlePath);
   const projectVersion = getProjectVersion(
     branchName,

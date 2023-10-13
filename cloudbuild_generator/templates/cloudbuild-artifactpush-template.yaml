@@ -1,0 +1,93 @@
+substitutions:
+  _COMMIT_ID: {{ commitId }}
+  _BRANCH_NAME: {{ branchName }}
+
+options:
+  substitution_option: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone intelligent pipeline'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone https://github.com/brianpipeline/intelligent-pipeline'
+    ]
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone repo'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone {{ cloneUrl }}'
+    ]
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Checkout stuff'
+    entrypoint: 'bash'
+    args: 
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [ "$_COMMIT_ID" == "" ]
+        then
+          cd {{ repoName }} && git checkout $_BRANCH_NAME
+        else
+          cd {{ repoName }} && git checkout $_COMMIT_ID
+        fi
+    
+  - name: '{{buildImage}}'
+    id: 'build project'
+    entrypoint: 'bash'
+    args: [
+      "-c",
+      "cd {{ repoName }} && {{ buildArgs }}"
+    ]
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Create artifact registry repository'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ -z "$(gcloud artifacts repositories describe {{ serviceName }} --location=us-central1 2>&1 >/dev/null)" ]]; 
+        then
+          echo "Repository already exists."
+        else
+          gcloud artifacts repositories create {{ serviceName }} --repository-format=docker --location=us-central1
+        fi
+
+- name: 'node:16'
+    id: 'run generateDockerfile'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'cd intelligent-pipeline/dockerfile_generator 
+      && npm install 
+      && node generateDockerFile.js {{ appName }} {{ originalAppVersion }} /workspace/intelligent-pipeline/dockerfile_generator/dockerfiletemplate'
+    ]
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build docker image'
+    entrypoint: 'bash'
+    args:
+      [
+        '-c',
+        'docker build -f /workspace/intelligent-pipeline/dockerfile_generator/Dockerfile
+        -t us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ appVersion }}
+        .'
+      ]
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push docker image'
+    args:
+      [
+        'push',
+        'us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ appVersion }}'
+      ]
