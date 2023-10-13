@@ -54,7 +54,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ -z "$(gcloud artifacts repositories describe {{ serviceName }} --location=us-central1 2>&1 >/dev/null)" ]]; 
+        if `gcloud artifacts repositories list | grep -q "{{ serviceName }}"`;
         then
           echo "Repository already exists."
         else
