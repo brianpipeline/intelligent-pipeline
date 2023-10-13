@@ -1,6 +1,7 @@
 substitutions:
   _COMMIT_ID: {{ commitId }}
   _BRANCH_NAME: {{ branchName }}
+  _SHORT_BUILD_ID: ${BUILD_ID:0:8}
 
 options:
   substitution_option: ALLOW_LOOSE
@@ -71,23 +72,36 @@ steps:
       && node generateDockerFile.js {{ appName }} {{ originalAppVersion }} /workspace/intelligent-pipeline/dockerfile_generator/dockerfiletemplate'
     ]
 
-  # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build docker image'
     entrypoint: 'bash'
     args:
-      [
-        '-c',
-        'docker build -f /workspace/intelligent-pipeline/dockerfile_generator/Dockerfile
-        -t us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ appVersion }}
-        .'
-      ]
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        then
+          docker build -f /workspace/intelligent-pipeline/dockerfile_generator/Dockerfile \
+          -t us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
+          .
+        else
+          docker build -f /workspace/intelligent-pipeline/dockerfile_generator/Dockerfile \
+          -t us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ originalAppVersion }}-$_SHORT_BUILD_ID \
+          .
+        fi
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push docker image'
     args:
-      [
-        'push',
-        'us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ appVersion }}'
-      ]
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        then
+          docker push us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
+        else
+          docker push us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ originalAppVersion }}-$_SHORT_BUILD_ID
+        fi

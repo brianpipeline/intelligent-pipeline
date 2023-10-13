@@ -3,7 +3,6 @@ import {
   readCloudBuildTemplate,
   getVersionFromBuildGradle,
   getNameFromSettingsGradle,
-  getProjectVersion
 } from "./commonFunctions.js";
 import Handlebars from "handlebars";
 import { promises as fs } from "fs";
@@ -17,7 +16,6 @@ function generateFileBasedOffTemplate(
   cloneUrl,
   commitId,
   appName,
-  appVersion,
   originalAppVersion
 ) {
   const template = Handlebars.compile(templateString);
@@ -37,8 +35,7 @@ function generateFileBasedOffTemplate(
     cloneUrl,
     commitId,
     appName,
-    appVersion,
-    originalAppVersion
+    originalAppVersion,
   });
   return contents.replace(/&amp;/g, "&");
 }
@@ -63,11 +60,6 @@ async function generateCloudBuildYaml(
 
   const originalAppVersion = await getVersionFromBuildGradle(buildGradlePath);
   const appName = await getNameFromSettingsGradle(settingsGradlePath);
-  const appVersion = getProjectVersion(
-    branchName,
-    originalAppVersion,
-    Date.now()
-  );
 
   const contents = generateFileBasedOffTemplate(
     templateString,
@@ -78,7 +70,6 @@ async function generateCloudBuildYaml(
     cloneUrl,
     commitId,
     appName,
-    appVersion,
     originalAppVersion
   );
 
