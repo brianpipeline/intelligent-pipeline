@@ -74,6 +74,7 @@ steps:
       - |-
         if [[ -z "$(gcloud builds triggers describe $_REPOSITORY_NAME-artifact-build 2>&1 >/dev/null)" ]]; 
         then
+          cd /workspace/cloudbuild_generator && ls
           gcloud builds triggers update pubsub $_REPOSITORY_NAME-artifact-build \
           --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml
         else
