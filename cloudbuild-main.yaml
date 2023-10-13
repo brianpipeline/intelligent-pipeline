@@ -46,7 +46,7 @@ steps:
       /workspace/cloudbuild_generator/templates/cloudbuild-artifactbuild-template.yaml 
       $_BRANCH_NAME,
       $_REPOSITORY_NAME,
-      _REPO_TO_CLONE'
+      $_REPO_TO_CLONE'
     ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -75,7 +75,7 @@ steps:
         if [[ -z "$(gcloud builds triggers describe $_REPOSITORY_NAME-artifact-build 2>&1 >/dev/null)" ]]; 
         then
           gcloud builds triggers update pubsub $_REPOSITORY_NAME-artifact-build \
-            --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml
+          --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml
         else
           gcloud builds triggers create pubsub \
           --name=$_REPOSITORY_NAME-artifact-build \
