@@ -1,6 +1,4 @@
 substitutions:
-  _REPO_NAME: {{ repoName }}
-  _CLONE_URL: {{ cloneUrl }}
   _BRANCH_NAME: {{ branchName }}
 
 options:
@@ -21,7 +19,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'git clone $_CLONE_URL && cd $_REPO_NAME && git checkout $_BRANCH_NAME'
+      'git clone {{ cloneUrl }} && cd {{ repoName }} && git checkout $_BRANCH_NAME'
     ]
 
   - name: 'gcr.io/cloud-builders/git'
@@ -29,7 +27,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'cd $_REPO_NAME && git status'
+      'cd {{ repoName }} && git status'
     ]
 
   - name: '{{buildImage}}'
@@ -37,7 +35,7 @@ steps:
     entrypoint: 'bash'
     args: [
       "-c",
-      "cd $_REPO_NAME && {{ buildArgs }}"
+      "cd {{ repoName }} && {{ buildArgs }}"
     ]
   {{#ifIsMainOrRelease branchName}}
   {{/ifIsMainOrRelease}}
