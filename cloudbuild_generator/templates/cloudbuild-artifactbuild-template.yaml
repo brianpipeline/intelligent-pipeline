@@ -24,7 +24,7 @@ steps:
     ]
 
   - name: 'gcr.io/cloud-builders/git'
-    id: 'Clone repo'
+    id: 'Checkout stuff'
     entrypoint: 'bash'
     args: 
       - '-eEuo'
