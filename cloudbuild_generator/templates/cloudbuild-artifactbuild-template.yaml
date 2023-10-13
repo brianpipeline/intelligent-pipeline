@@ -1,5 +1,4 @@
 substitutions:
-  # Repository Specific configuration. DevOps can change these as needed
   _REPO_NAME: {{ repoName }}
   _CLONE_URL: {{ cloneUrl }}
   _BRANCH_NAME: {{ branchName }}
@@ -33,7 +32,6 @@ steps:
       'cd $_REPO_NAME && git status'
     ]
 
-  # Build the container image
   - name: '{{buildImage}}'
     id: 'build project'
     entrypoint: 'bash'
