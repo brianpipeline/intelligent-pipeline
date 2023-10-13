@@ -1,0 +1,45 @@
+substitutions:
+  # Repository Specific configuration. DevOps can change these as needed
+  _REPO_NAME: {{ repoName }}
+  _CLONE_URL: {{ cloneUrl }}
+  _BRANCH_NAME: {{ branchName }}
+
+options:
+  substitution_option: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone intelligent pipeline'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone https://github.com/brianpipeline/intelligent-pipeline'
+    ]
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone repo'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone $_CLONE_URL && cd $_REPO_NAME && git checkout $_BRANCH_NAME'
+    ]
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'REMOVE - test branch status'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'cd $_REPO_NAME && git status'
+    ]
+
+  # Build the container image
+  - name: '{{buildImage}}'
+    id: 'build project'
+    entrypoint: 'bash'
+    args: [
+      "-c",
+      "cd $_REPO_NAME && {{ buildArgs }}"
+    ]
+  {{#ifIsMainOrRelease branchName}}
+  {{/ifIsMainOrRelease}}

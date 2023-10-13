@@ -41,29 +41,11 @@ steps:
       '-c',
       'cd cloudbuild_generator 
       && npm install 
-      && node generateCloudBuild.js 
+      && node generateArtifactBuild.js 
       /workspace/$_REPOSITORY_NAME/brianpipeline.yaml 
-      /workspace/$_REPOSITORY_NAME/build.gradle 
-      /workspace/$_REPOSITORY_NAME/settings.gradle 
-      /workspace/cloudbuild_generator/cloudbuild-template.yaml 
-      $_BRANCH_NAME
-      $_SHORT_BUILD_ID'
+      /workspace/cloudbuild_generator/templates/cloudbuild-artifactbuild-template.yaml 
+      $_BRANCH_NAME'
     ]
-
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Delete pubsub trigger if it exists.'
-    entrypoint: 'bash'
-    args:
-      - '-eEuo'
-      - 'pipefail'
-      - '-c'
-      - |-
-        if `gcloud builds triggers list | grep -q "$_REPOSITORY_NAME"`;
-        then
-          gcloud builds triggers delete $_REPOSITORY_NAME-pubsub-trigger
-        else
-          echo "trigger does not exist, so we are creating it now."
-        fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub topic.'
@@ -73,24 +55,32 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if `gcloud pubsub topics list --filter="name.scope(topic):'$_REPOSITORY_NAME'" | grep -q "$_REPOSITORY_NAME"`;
+        if [[ -z "$(gcloud builds triggers describe $_REPOSITORY_NAME-artifact-build 2>&1 >/dev/null)" ]]; 
         then
-          echo "Pubsub topic already exists"
+          gcloud pubsub topics create $_REPOSITORY_NAME-artifact-build
         else
-          gcloud pubsub topics create $_REPOSITORY_NAME
+          echo "Pubsub topic already exists"
         fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Create new pubsub trigger.'
+    id: 'Delete pubsub trigger if it exists.'
     entrypoint: 'bash'
-    args: [
-      '-c',
-      'gcloud builds triggers create pubsub 
-       --name=$_REPOSITORY_NAME-pubsub-trigger 
-       --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME
-       --inline-config=/workspace/cloudbuild_generator/cloudbuild.yaml
-       --region=global'
-    ]
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ -z "$(gcloud builds triggers describe $_REPOSITORY_NAME-artifact-build 2>&1 >/dev/null)" ]]; 
+        then
+          gcloud builds triggers create pubsub 
+            --name=$_REPOSITORY_NAME-artifact-build
+            --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build
+            --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml
+            --region=global
+        else
+          gcloud build triggers update pubsub $_REPOSITORY_NAME-artifact-build
+            --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml
+        fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Publish pubsub message'
@@ -100,5 +90,5 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME \
-        --message='{"repositoryName": "$_REPOSITORY_NAME", "cloneUrl": "$_REPO_TO_CLONE"}'
+        gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build \
+        --message='{"unused": "$_REPOSITORY_NAME"}'
