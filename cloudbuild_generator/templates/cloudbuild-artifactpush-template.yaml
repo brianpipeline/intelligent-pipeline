@@ -61,7 +61,7 @@ steps:
           gcloud artifacts repositories create {{ serviceName }} --repository-format=docker --location=us-central1
         fi
 
-- name: 'node:16'
+  - name: 'node:16'
     id: 'run generateDockerfile'
     entrypoint: 'bash'
     args: [
