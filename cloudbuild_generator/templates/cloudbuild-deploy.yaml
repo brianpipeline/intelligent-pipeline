@@ -1,0 +1,89 @@
+substitutions:
+  _ARTIFACT_TAG: {{ artifactTag }}
+  _CASCADE_TO_OTHER_ENVS: {{ cascade }}
+  _SERVICE_ACCOUNT: cloud-run@cloud-build-pipeline-396819.iam.gserviceaccount.com
+  _SHORT_BUILD_ID: ${BUILD_ID:0:8}
+
+options:
+  substitution_option: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Deploy to cloud run for {{env}}.'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]]; 
+        then
+        	echo "Not the first time deploying this app."
+
+          gcloud run deploy {{ serviceName }}-{{env}} \
+          --service-account=$_SERVICE_ACCOUNT \
+          --image=us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:$_ARTIFACT_TAG \
+          --ingress=all \
+          --allow-unauthenticated \
+          --min-instances=1 \
+          --max-instances=1 \
+          --project=$PROJECT_ID \
+          --region=us-central1 \
+          --no-traffic \
+          --revision-suffix=$_SHORT_BUILD_ID \
+          --tag=green-$_SHORT_BUILD_ID \
+          --port=8080
+        else
+          echo "First time deploying this app."
+          gcloud run deploy {{ serviceName }}-{{env}} \
+          --service-account=$_SERVICE_ACCOUNT \
+          --image=us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:$_ARTIFACT_TAG \
+          --ingress=all \
+          --allow-unauthenticated \
+          --min-instances=1 \
+          --max-instances=1 \
+          --project=$PROJECT_ID \
+          --region=us-central1 \
+          --revision-suffix=$_SHORT_BUILD_ID \
+          --tag=green-$_SHORT_BUILD_ID \
+          --port=8080
+        fi
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Update traffic on green build for {{env}}'
+    entrypoint: 'bash'
+    args:
+      [
+        '-c',
+        'gcloud run services update-traffic $_SERVICE_NAME-{{env}}
+        --project=$PROJECT_ID
+        --region=us-central1
+        --to-tags green-$_SHORT_BUILD_ID=100'
+      ]
+  
+  # The only way to do a finally block is to listen to see if the build fails, then clear green tags after that associated with
+  # this build. I don't really want to get that working right now, but ideally that's how we'd do it.
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Clear tags for {{env}}'
+    entrypoint: 'bash'
+    args:
+      [
+        '-c',
+        'gcloud run services update-traffic $_SERVICE_NAME-{{env}}
+        --project=$PROJECT_ID
+        --region=us-central1
+        --clear-tags'
+      ]
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Tag new green build on {{env}} with blue'
+    entrypoint: 'bash'
+    args:
+      [
+        '-c',
+        'gcloud run services update-traffic $_SERVICE_NAME-{{env}}
+        --project=$PROJECT_ID
+        --region=us-central1
+        --update-tags=blue=$_SERVICE_NAME-{{env}}-$_SHORT_BUILD_ID'
+      ]
