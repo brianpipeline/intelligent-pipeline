@@ -65,8 +65,8 @@ steps:
         if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
         then
           cd cloudbuild_generator 
-          && npm install 
-          node generateArtifactPush.js \
+          && npm install \
+          && node generateArtifactPush.js \
           /workspace/{{ repoName }}/brianpipeline.yaml  \
           templates/cloudbuild-artifactpush-template.yaml \
           $_BRANCH_NAME \
