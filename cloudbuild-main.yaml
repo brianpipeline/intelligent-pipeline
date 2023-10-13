@@ -44,7 +44,9 @@ steps:
       && node generateArtifactBuild.js 
       /workspace/$_REPOSITORY_NAME/brianpipeline.yaml 
       /workspace/cloudbuild_generator/templates/cloudbuild-artifactbuild-template.yaml 
-      $_BRANCH_NAME'
+      $_BRANCH_NAME,
+      $_REPOSITORY_NAME,
+      _REPO_TO_CLONE'
     ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
