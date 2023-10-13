@@ -94,6 +94,7 @@ steps:
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push docker image'
+    entrypoint: 'bash'
     args:
       - '-eEuo'
       - 'pipefail'
