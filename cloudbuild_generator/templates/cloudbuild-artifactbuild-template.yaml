@@ -133,7 +133,7 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
         then
-          gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/{{ repoName }}-artifact-build \
+          gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/{{ repoName }}-artifact-push \
           --message='{"unused": "{{ repoName }}"}'
         else
           echo "Not cascading - this is a feature branch."
