@@ -111,19 +111,19 @@ steps:
         if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
           if [[ -z "$(gcloud builds triggers describe {{ repoName }}-artifact-push 2>&1 >/dev/null)" ]]; 
           then
-            gcloud builds triggers delete {{ repoName }}-artifact-push
-            gcloud builds triggers create pubsub \
+            gcloud builds triggers delete {{ repoName }}-artifact-push \ 
+            && gcloud builds triggers create pubsub \
             --name={{ repoName }}-artifact-push \
             --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-artifact-push \
             --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactpush.yaml \
-            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$(echo $_BRANCH_REF | sed 's/refs\/heads\///') \
+            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME \
             --region=global
           else
             gcloud builds triggers create pubsub \
             --name={{ repoName }}-artifact-push \
             --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-artifact-push \
             --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactpush.yaml \
-            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$(echo $_BRANCH_REF | sed 's/refs\/heads\///') \
+            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME \
             --region=global
           fi
         else
