@@ -21,7 +21,8 @@ function generateFileBasedOffTemplate(
   serviceName,
   branchName,
   repoName,
-  cloneUrl
+  cloneUrl,
+  commitId
 ) {
   Handlebars.registerHelper("ifIsMainOrRelease", function (arg1, options) {
     return String(arg1) == "main" || String(arg1).includes("release")
@@ -44,6 +45,7 @@ function generateFileBasedOffTemplate(
     branchName,
     repoName,
     cloneUrl,
+    commitId,
   });
   return contents.replace(/&amp;/g, "&");
 }
@@ -53,7 +55,8 @@ async function generateCloudBuildYaml(
   cloudBuildTemplateFilePath,
   branchRef,
   repoName,
-  cloneUrl
+  cloneUrl,
+  commitId
 ) {
   const { buildContainer, serviceName } = await readBrianPipelineYaml(
     brianPipelineFilePath
@@ -72,7 +75,8 @@ async function generateCloudBuildYaml(
       serviceName,
       branchName,
       repoName,
-      cloneUrl
+      cloneUrl,
+      commitId
     );
 
     fs.writeFile("cloudbuild-artifactbuild.yaml", contents);
@@ -83,7 +87,8 @@ async function generateCloudBuildYaml(
       serviceName,
       branchName,
       repoName,
-      cloneUrl
+      cloneUrl,
+      commitId
     );
 
     fs.writeFile("cloudbuild-artifactbuild.yaml", contents);
@@ -95,5 +100,6 @@ generateCloudBuildYaml(
   process.argv[3],
   process.argv[4],
   process.argv[5],
-  process.argv[6]
+  process.argv[6],
+  process.argv[7]
 );

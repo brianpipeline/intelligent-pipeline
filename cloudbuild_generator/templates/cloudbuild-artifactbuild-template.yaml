@@ -1,5 +1,5 @@
 substitutions:
-  _BRANCH_NAME: {{ branchName }}
+  _COMMIT_ID: {{ commitId }}
 
 options:
   substitution_option: ALLOW_LOOSE
@@ -19,7 +19,7 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'git clone {{ cloneUrl }} && cd {{ repoName }} && git checkout $_BRANCH_NAME'
+      'git clone {{ cloneUrl }} && cd {{ repoName }} && git checkout $_COMMIT_ID'
     ]
 
   - name: 'gcr.io/cloud-builders/git'
