@@ -1,5 +1,6 @@
 substitutions:
   _COMMIT_ID: {{ commitId }}
+  _BRANCH_NAME: {{ branchName }}
 
 options:
   substitution_option: ALLOW_LOOSE
@@ -19,8 +20,23 @@ steps:
     entrypoint: 'bash'
     args: [
       '-c',
-      'git clone {{ cloneUrl }} && cd {{ repoName }} && git checkout $_COMMIT_ID'
+      'git clone {{ cloneUrl }}'
     ]
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone repo'
+    entrypoint: 'bash'
+    args: 
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [ "$_COMMIT_ID" == "" ]
+        then
+          cd {{ repoName }} && git checkout $_BRANCH_NAME
+        else
+          cd {{ repoName }} && git checkout $_COMMIT_ID
+        fi
 
   - name: 'gcr.io/cloud-builders/git'
     id: 'REMOVE - test branch status'
@@ -37,5 +53,18 @@ steps:
       "-c",
       "cd {{ repoName }} && {{ buildArgs }}"
     ]
-  {{#ifIsMainOrRelease branchName}}
-  {{/ifIsMainOrRelease}}
+
+  - name: 'node:16'
+    id: 'run generateArtifactPush'
+    entrypoint: 'bash'
+    args: 
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [ "$_BRANCH_NAME" == "main" ] || ["$_BRANCH_NAME" == *"release"*]
+        then
+          echo "hey"
+        else
+          echo "yooo"
+        fi
