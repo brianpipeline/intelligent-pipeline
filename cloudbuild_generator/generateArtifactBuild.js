@@ -86,7 +86,7 @@ async function generateCloudBuildYaml(
       cloneUrl
     );
 
-    fs.writeFile("cloudbuild.yaml", contents);
+    fs.writeFile("cloudbuild-artifactbuild.yaml", contents);
   }
 }
 
