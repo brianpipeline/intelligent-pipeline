@@ -72,14 +72,14 @@ steps:
       - |-
         if [[ -z "$(gcloud builds triggers describe $_REPOSITORY_NAME-artifact-build 2>&1 >/dev/null)" ]]; 
         then
-          gcloud builds triggers update pubsub $_REPOSITORY_NAME-artifact-build
+          gcloud builds triggers update pubsub $_REPOSITORY_NAME-artifact-build \
             --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml
         else
-          gcloud builds triggers create pubsub 
-            --name=$_REPOSITORY_NAME-artifact-build
-            --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build
-            --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml
-            --region=global
+          gcloud builds triggers create pubsub \
+          --name=$_REPOSITORY_NAME-artifact-build \
+          --topic=projects/cloud-build-pipeline-396819/topics/$_REPOSITORY_NAME-artifact-build \
+          --inline-config=/workspace/cloudbuild_generator/cloudbuild-artifactbuild.yaml \
+          --region=global
         fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
