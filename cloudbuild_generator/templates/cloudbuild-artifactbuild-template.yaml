@@ -62,9 +62,9 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ "$_BRANCH_NAME" == "main" ] || ["$_BRANCH_NAME" == *"release"*]
+        if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
         then
           echo "hey"
         else
-          echo "yooo"
+          echo "idk"
         fi
