@@ -117,7 +117,7 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
-          cd intelligent-pipeline/cloudbuild_generator \
+          cd /workspace/intelligent-pipeline/cloudbuild_generator \
           && npm install \
           && node generateDeployToEnv.js \
           /workspace/{{ repoName }}/brianpipeline.yaml \
@@ -131,7 +131,7 @@ steps:
           false \
           /workspace/{{ repoName }}/settings.gradle
         else
-          cd intelligent-pipeline/cloudbuild_generator \
+          cd /workspace/intelligent-pipeline/cloudbuild_generator \
           && npm install \
           && node generateDeployToEnv.js \
           /workspace/{{ repoName }}/brianpipeline.yaml \
