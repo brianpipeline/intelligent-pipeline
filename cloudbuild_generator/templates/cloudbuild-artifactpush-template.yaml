@@ -121,5 +121,5 @@ steps:
           grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //''
         else
           which jq
-          grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //''
+          grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //''
         fi
