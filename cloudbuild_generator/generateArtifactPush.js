@@ -37,7 +37,7 @@ function generateFileBasedOffTemplate(
     appName,
     originalAppVersion,
   });
-  return contents.replace(/&amp;/g, "&");
+  return contents;
 }
 
 async function generateCloudBuildYaml(

@@ -44,7 +44,7 @@ steps:
     entrypoint: 'bash'
     args: [
       "-c",
-      "cd {{ repoName }} && {{ buildArgs }}"
+      "cd {{ repoName }} && {{{ buildArgs }}}"
     ]
 
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -108,7 +108,7 @@ steps:
         fi
 
   - name: 'node:16'
-    id: 'Get envs from brianpipeline.yaml'
+    id: 'Generate deploy-to-env pipeline'
     entrypoint: 'bash'
     args:
       - '-eEuo'
@@ -117,9 +117,60 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
-          which jq
-          grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //''
+          cd intelligent-pipeline/cloudbuild_generator \ 
+          && npm install \
+          && node generateDeployToEnv.js \
+             /workspace/{{ repoName }}/brianpipeline.yaml \
+             templates/cloudbuild-deploy-template.yaml \
+             {{ repoName }} \
+             {{ cloneUrl }} \
+             $_COMMIT_ID \
+             $(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
+             $(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //'') \
+             true \
+             true \
+             /workspace/{{ repoName }}/settings.gradle
         else
-          which jq
-          grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //''
+          cd intelligent-pipeline/cloudbuild_generator \ 
+          && npm install \
+          && node generateDeployToEnv.js \
+             /workspace/{{ repoName }}/brianpipeline.yaml \
+             templates/cloudbuild-deploy-template.yaml \
+             {{ repoName }} \
+             {{ cloneUrl }} \
+             $_COMMIT_ID \
+             {{ originalAppVersion }}-$_SHORT_BUILD_ID \
+             $(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //'') \
+             true \
+             true \
+             /workspace/{{ repoName }}/settings.gradle
         fi
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Create new pubsub topic.'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        then
+          result=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/^\["\([^"]*\)".*/\1/p')
+        elif [[ "$_BRANCH_NAME" == "main" ]]
+        then
+          result=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/^\["\([^"]*\)".*/\1/p')
+        else
+          result=""
+        
+        echo $result
+        if [ -n "$result" ]
+        then
+          if [[ -z "$(gcloud pubsub topics describe {{ repoName }}-deploy-to-$(result)" ]]; 
+          then
+            echo "Pubsub topic already exists"
+          else
+            gcloud pubsub topics create {{ repoName }}-deploy-to-$(result)
+          fi
+        else
+          echo "On a feature branch, so we're not cascading."

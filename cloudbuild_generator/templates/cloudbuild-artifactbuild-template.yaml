@@ -43,7 +43,7 @@ steps:
     entrypoint: 'bash'
     args: [
       "-c",
-      "cd {{ repoName }} && {{ buildArgs }}"
+      "cd {{ repoName }} && {{{ buildArgs }}}"
     ]
 
   - name: 'node:16'

@@ -32,7 +32,7 @@ function generateFileBasedOffTemplate(
     cloneUrl,
     commitId,
   });
-  return contents.replace(/&amp;/g, "&");
+  return contents;
 }
 
 async function generateCloudBuildYaml(
