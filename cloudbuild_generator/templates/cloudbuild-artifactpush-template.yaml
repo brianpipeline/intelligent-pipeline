@@ -167,7 +167,7 @@ steps:
         echo $result
         if [ -n "$result" ]
         then
-          if [[ -z "$(gcloud pubsub topics describe {{ repoName }}-deploy-to-$result") ]]; 
+          if [[ -z "$(gcloud pubsub topics describe {{ repoName }}-deploy-to-$result)" ]]; 
           then
             echo "Pubsub topic already exists"
           else
