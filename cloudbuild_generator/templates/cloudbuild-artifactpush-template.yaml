@@ -120,30 +120,30 @@ steps:
           cd intelligent-pipeline/cloudbuild_generator \ 
           && npm install \
           && node generateDeployToEnv.js \
-             /workspace/{{ repoName }}/brianpipeline.yaml \
-             templates/cloudbuild-deploy-template.yaml \
-             {{ repoName }} \
-             {{ cloneUrl }} \
-             $_COMMIT_ID \
-             $(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
-             $(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //'') \
-             true \
-             true \
-             /workspace/{{ repoName }}/settings.gradle
+          /workspace/{{ repoName }}/brianpipeline.yaml \
+          templates/cloudbuild-deploy-template.yaml \
+          {{ repoName }} \
+          {{ cloneUrl }} \
+          $_COMMIT_ID \
+          $(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
+          $(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //'') \
+          true \
+          true \
+          /workspace/{{ repoName }}/settings.gradle
         else
           cd intelligent-pipeline/cloudbuild_generator \ 
           && npm install \
           && node generateDeployToEnv.js \
-             /workspace/{{ repoName }}/brianpipeline.yaml \
-             templates/cloudbuild-deploy-template.yaml \
-             {{ repoName }} \
-             {{ cloneUrl }} \
-             $_COMMIT_ID \
-             {{ originalAppVersion }}-$_SHORT_BUILD_ID \
-             $(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //'') \
-             true \
-             true \
-             /workspace/{{ repoName }}/settings.gradle
+          /workspace/{{ repoName }}/brianpipeline.yaml \
+          templates/cloudbuild-deploy-template.yaml \
+          {{ repoName }} \
+          {{ cloneUrl }} \
+          $_COMMIT_ID \
+          {{ originalAppVersion }}-$_SHORT_BUILD_ID \
+          $(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //'') \
+          true \
+          true \
+          /workspace/{{ repoName }}/settings.gradle
         fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
