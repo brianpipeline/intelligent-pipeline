@@ -146,6 +146,8 @@ steps:
           /workspace/{{ repoName }}/settings.gradle
         fi
 
+        cd /workspace/intelligent-pipeline/cloudbuild_generator && ls
+
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub topic.'
     entrypoint: 'bash'
