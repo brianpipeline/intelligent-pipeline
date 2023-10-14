@@ -147,7 +147,6 @@ steps:
         fi
 
         ls
-        cd intelligent-pipeline/cloudbuild_generator && ls
         cd /workspace/intelligent-pipeline/cloudbuild_generator && ls
 
   - name: 'gcr.io/cloud-builders/gcloud'
