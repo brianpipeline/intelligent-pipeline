@@ -162,6 +162,7 @@ steps:
           result=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/^\["\([^"]*\)".*/\1/p')
         else
           result=""
+        fi
         
         echo $result
         if [ -n "$result" ]
@@ -174,3 +175,4 @@ steps:
           fi
         else
           echo "On a feature branch, so we're not cascading."
+        fi
