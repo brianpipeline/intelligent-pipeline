@@ -17,7 +17,7 @@ function generateFileBasedOffTemplate(
   artifactTag,
   envsToDeploy,
   cascade,
-  runDeploymentTests,
+  skipDeploymentTests,
   env
 ) {
   const template = Handlebars.compile(templateString);
@@ -40,7 +40,7 @@ function generateFileBasedOffTemplate(
     artifactTag,
     envsToDeploy: `'${JSON.stringify(envsToDeploy)}'`,
     cascade,
-    runDeploymentTests,
+    skipDeploymentTests,
     env,
   });
   return contents;
@@ -55,7 +55,7 @@ async function generateCloudBuildYaml(
   artifactTag,
   envsToDeploy,
   cascade,
-  runDeploymentTests,
+  skipDeploymentTests,
   settingsGradlePath
 ) {
   const envsArray = JSON.parse(envsToDeploy);
@@ -82,7 +82,7 @@ async function generateCloudBuildYaml(
     artifactTag,
     envsArray,
     cascade,
-    runDeploymentTests,
+    skipDeploymentTests,
     env
   );
 

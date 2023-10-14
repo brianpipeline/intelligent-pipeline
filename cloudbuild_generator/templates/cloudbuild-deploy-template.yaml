@@ -3,7 +3,7 @@ substitutions:
   _ENVS_TO_DEPLOY: {{{ envsToDeploy }}}
   _COMMIT_ID_FOR_DEPLOYMENT_TESTS: {{ commitId }} 
   _CASCADE_TO_OTHER_ENVS: {{ cascade }}
-  _RUN_DEPLOYMENT_TESTS: {{ runDeploymentTests }}
+  _SKIP_DEPLOYMENT_TESTS: {{ skipDeploymentTests }}
   _SERVICE_ACCOUNT: cloud-run@cloud-build-pipeline-396819.iam.gserviceaccount.com
   _SHORT_BUILD_ID: ${BUILD_ID:0:8}
 
