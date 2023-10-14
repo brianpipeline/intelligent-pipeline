@@ -129,7 +129,7 @@ steps:
           $(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //'') \
           true \
           false \
-          /workspace/{{ repoName }}/settings.gradle
+          /workspace/{{ repoName }}/settings.gradle \
           && cp cloudbuild-deploy.yaml /workspace
         else
           cd /workspace/intelligent-pipeline/cloudbuild_generator \
@@ -144,7 +144,7 @@ steps:
           $(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //'') \
           true \
           false \
-          /workspace/{{ repoName }}/settings.gradle
+          /workspace/{{ repoName }}/settings.gradle \
           && cp cloudbuild-deploy.yaml /workspace
         fi
 
