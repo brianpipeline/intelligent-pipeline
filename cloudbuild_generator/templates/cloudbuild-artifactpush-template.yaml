@@ -130,6 +130,7 @@ steps:
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
+          && cp cloudbuild-deploy.yaml /workspace
         else
           cd /workspace/intelligent-pipeline/cloudbuild_generator \
           && npm install \
@@ -144,10 +145,12 @@ steps:
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
+          && cp cloudbuild-deploy.yaml /workspace
         fi
 
         ls
         cd /workspace/intelligent-pipeline/cloudbuild_generator && ls
+        cd /workspace && ls
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub topic.'
@@ -189,6 +192,7 @@ steps:
       - '-c'
       - |-
         cd /workspace/intelligent-pipeline/cloudbuild_generator && ls
+        cd /workspace && ls
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create deploy-to-env pipeline.'
