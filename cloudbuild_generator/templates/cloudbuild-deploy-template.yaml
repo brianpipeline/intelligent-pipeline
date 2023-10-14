@@ -20,9 +20,9 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]]; 
+        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]] && ["$_SKIP_DEPLOYMENT_TESTS" = "false"]; 
         then
-        	echo "Not the first time deploying this app."
+        	echo "Not the first time deploying this app"
 
           gcloud run deploy {{ serviceName }}-{{env}} \
           --service-account=$_SERVICE_ACCOUNT \
@@ -38,7 +38,7 @@ steps:
           --tag=green-$_SHORT_BUILD_ID \
           --port=8080
         else
-          echo "First time deploying this app."
+          echo "First time deploying this app, or skipping deployment tests."
           gcloud run deploy {{ serviceName }}-{{env}} \
           --service-account=$_SERVICE_ACCOUNT \
           --image=us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:$_ARTIFACT_TAG \
@@ -57,13 +57,19 @@ steps:
     id: 'Update traffic on green build for {{env}}'
     entrypoint: 'bash'
     args:
-      [
-        '-c',
-        'gcloud run services update-traffic $_SERVICE_NAME-{{env}}
-        --project=$PROJECT_ID
-        --region=us-central1
-        --to-tags green-$_SHORT_BUILD_ID=100'
-      ]
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if ["$_SKIP_DEPLOYMENT_TESTS" = "false"]; 
+        then
+          gcloud run services update-traffic $_SERVICE_NAME-{{env}}
+          --project=$PROJECT_ID
+          --region=us-central1
+          --to-tags green-$_SHORT_BUILD_ID=100
+        else
+          echo "Skipping deployment tests."
+        fi
   
   # The only way to do a finally block is to listen to see if the build fails, then clear green tags after that associated with
   # this build. I don't really want to get that working right now, but ideally that's how we'd do it.
@@ -71,13 +77,19 @@ steps:
     id: 'Clear tags for {{env}}'
     entrypoint: 'bash'
     args:
-      [
-        '-c',
-        'gcloud run services update-traffic $_SERVICE_NAME-{{env}}
-        --project=$PROJECT_ID
-        --region=us-central1
-        --clear-tags'
-      ]
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if ["$_SKIP_DEPLOYMENT_TESTS" = "false"]; 
+        then
+          gcloud run services update-traffic $_SERVICE_NAME-{{env}}
+          --project=$PROJECT_ID
+          --region=us-central1
+          --clear-tags
+        else
+          echo "Skipping deployment tests."
+        fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Tag new green build on {{env}} with blue'
