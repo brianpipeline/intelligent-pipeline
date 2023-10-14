@@ -220,3 +220,31 @@ steps:
         else
           echo "On a feature branch, so we're not cascading."
         fi
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Publish pubsub message'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        then
+          env=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+          artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
+        elif [[ "$_BRANCH_NAME" == "main" ]]
+        then
+          env=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+          artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
+        else
+          env=""
+        fi
+        
+        if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
+        then
+          gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+          --message='{"unused": "{{ repoName }}"}'
+        else
+          echo "Not cascading - this is a feature branch."
+        fi
