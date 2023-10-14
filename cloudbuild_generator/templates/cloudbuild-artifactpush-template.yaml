@@ -178,6 +178,16 @@ steps:
         fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'REMOVE.'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        cd /workspace/intelligent-pipeline/cloudbuild_generator && ls
+
+  - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create deploy-to-env pipeline.'
     entrypoint: 'bash'
     args:
