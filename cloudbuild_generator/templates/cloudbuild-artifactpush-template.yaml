@@ -167,11 +167,55 @@ steps:
         echo $result
         if [ -n "$result" ]
         then
-          if [[ -z "$(gcloud pubsub topics describe {{ repoName }}-deploy-to-$result) 2>&1 >/dev/null" ]]; 
+          if [[ -z "$(gcloud pubsub topics describe {{ repoName }}-deploy-to-$result 2>&1 >/dev/null)" ]]; 
           then
             echo "Pubsub topic already exists"
           else
             gcloud pubsub topics create {{ repoName }}-deploy-to-$result
+          fi
+        else
+          echo "On a feature branch, so we're not cascading."
+        fi
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Create deploy-to-env pipeline.'
+    entrypoint: 'bash'
+    args:
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        then
+          env=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+          artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
+        elif [[ "$_BRANCH_NAME" == "main" ]]
+        then
+          env=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+          artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
+        else
+          env=""
+        fi
+        
+        echo $env
+        if [ -n "$env" ]
+        then
+          if [[ -z "$(gcloud builds triggers describe {{ repoName }}-deploy-to-$env 2>&1 >/dev/null)" ]]; 
+          then
+            gcloud builds triggers delete {{ repoName }}-deploy-to-$env
+            gcloud builds triggers create pubsub \
+            --name={{ repoName }}-deploy-to-$env \
+            --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+            --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
+            --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag \
+            --region=global
+          else
+            gcloud builds triggers create pubsub \
+            --name={{ repoName }}-deploy-to-$env \
+            --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+            --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
+            --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag \
+            --region=global
           fi
         else
           echo "On a feature branch, so we're not cascading."
