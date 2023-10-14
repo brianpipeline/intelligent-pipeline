@@ -107,7 +107,7 @@ steps:
           docker push us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ originalAppVersion }}-$_SHORT_BUILD_ID
         fi
 
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: 'node:16'
     id: 'Get envs from brianpipeline.yaml'
     entrypoint: 'bash'
     args:
@@ -117,7 +117,9 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
-          grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml  | sed 's/envsToDeployToOnRelease: \[//;s/\]//'
+          which jq
+          grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //''
         else
-          grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml  | sed 's/envsToDeployToOnMain: \[//;s/\]//'
+          which jq
+          grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //''
         fi
