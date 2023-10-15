@@ -160,7 +160,7 @@ steps:
         then
           echo "Do nothing, deploy array is empty"
         else
-          env=$(echo $_ENVS_TO_DEPLOY | sed -n 's/\["\([^"]*\)".*/\1/p')
+          env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
 
           echo $env
           if [ -n "$env" ]
@@ -188,7 +188,7 @@ steps:
         then
           echo "Do nothing, deploy array is empty"
         else
-          env=$(echo $_ENVS_TO_DEPLOY | sed -n 's/\["\([^"]*\)".*/\1/p')
+          env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
           if [[ "$_BRANCH_NAME" == *"release"* ]]
           then
             artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
