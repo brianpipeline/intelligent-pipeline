@@ -20,7 +20,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]] && ["$_SKIP_DEPLOYMENT_TESTS" == "false"]; 
+        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]] && [ "$_SKIP_DEPLOYMENT_TESTS" == "false" ]; 
         then
         	echo "Not the first time deploying this app"
 
@@ -61,7 +61,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if ["$_SKIP_DEPLOYMENT_TESTS" == "false"]; 
+        if [ "$_SKIP_DEPLOYMENT_TESTS" == "false" ]; 
         then
           gcloud run services update-traffic {{serviceName}}-{{env}}
           --project=$PROJECT_ID
@@ -81,7 +81,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if ["$_SKIP_DEPLOYMENT_TESTS" == "false"]; 
+        if [ "$_SKIP_DEPLOYMENT_TESTS" == "false" ]; 
         then
           gcloud run services update-traffic {{serviceName}}-{{env}}
           --project=$PROJECT_ID
