@@ -126,13 +126,11 @@ steps:
           {{ cloneUrl }} \
           $_COMMIT_ID \
           $(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
-          $(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //'') \
+          $(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //') \
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
-        fi
-
-        if [[ "$_BRANCH_NAME" != *"release"* ]]
+        else
           cd intelligent-pipeline/cloudbuild_generator && \
           npm install && \
           node generateDeployToEnv.js \
@@ -142,7 +140,7 @@ steps:
           {{ cloneUrl }} \
           $_COMMIT_ID \
           {{ originalAppVersion }}-$_SHORT_BUILD_ID \
-          $(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //'') \
+          $(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //') \
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
