@@ -108,7 +108,7 @@ steps:
           docker push us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ originalAppVersion }}-$_SHORT_BUILD_ID
         fi
 
-  - name: 'node:16-alpine'
+  - name: 'node:16'
     id: 'Generate deploy-to-env pipeline'
     entrypoint: 'bash'
     args:
