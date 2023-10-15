@@ -187,38 +187,50 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
-          env=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
-          artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
-        elif [[ "$_BRANCH_NAME" == "main" ]]
-        then
-          env=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
-          artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
+          deployArray=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')
         else
-          env=""
+          deployArray=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
         fi
-        
-        echo $env
-        if [ -n "$env" ]
+
+        if [ -z "$result" ] || [ $deployArray == "[]" ]
         then
-          if [[ -z "$(gcloud builds triggers describe {{ repoName }}-deploy-to-$env 2>&1 >/dev/null)" ]]; 
-          then
-            gcloud builds triggers delete {{ repoName }}-deploy-to-$env
-            gcloud builds triggers create pubsub \
-            --name={{ repoName }}-deploy-to-$env \
-            --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
-            --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
-            --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag \
-            --region=global
-          else
-            gcloud builds triggers create pubsub \
-            --name={{ repoName }}-deploy-to-$env \
-            --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
-            --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
-            --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag \
-            --region=global
-          fi
+          echo "Do nothing, array is empty"
         else
-          echo "On a feature branch, so we're not cascading."
+          if [[ "$_BRANCH_NAME" == *"release"* ]]
+          then
+            env=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+            artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
+          elif [[ "$_BRANCH_NAME" == "main" ]]
+          then
+            env=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+            artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
+          else
+            env=""
+          fi
+          
+          echo $env
+          if [ -n "$env" ]
+          then
+            if [[ -z "$(gcloud builds triggers describe {{ repoName }}-deploy-to-$env 2>&1 >/dev/null)" ]]; 
+            then
+              gcloud builds triggers delete {{ repoName }}-deploy-to-$env
+              gcloud builds triggers create pubsub \
+              --name={{ repoName }}-deploy-to-$env \
+              --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+              --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
+              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag \
+              --region=global
+            else
+              gcloud builds triggers create pubsub \
+              --name={{ repoName }}-deploy-to-$env \
+              --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+              --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
+              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag \
+              --region=global
+            fi
+          else
+            echo "On a feature branch, so we're not cascading."
+          fi
         fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -231,20 +243,32 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
-          env=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
-          artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
-        elif [[ "$_BRANCH_NAME" == "main" ]]
-        then
-          env=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
-          artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
+          deployArray=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')
         else
-          env=""
+          deployArray=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
         fi
-        
-        if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
+
+        if [ -z "$result" ] || [ $deployArray == "[]" ]
         then
-          gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
-          --message='{"unused": "{{ repoName }}"}'
+          echo "Do nothing, array is empty"
         else
-          echo "Not cascading - this is a feature branch."
+          if [[ "$_BRANCH_NAME" == *"release"* ]]
+          then
+            env=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+            artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
+          elif [[ "$_BRANCH_NAME" == "main" ]]
+          then
+            env=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+            artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
+          else
+            env=""
+          fi
+          
+          if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
+          then
+            gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+            --message='{"unused": "{{ repoName }}"}'
+          else
+            echo "Not cascading - this is a feature branch."
+          fi
         fi
