@@ -101,9 +101,9 @@ steps:
       - '-c'
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]]; then
-          envsToDeploy=$(grep 'envsToDeployToOnRelease:' brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')
+          envsToDeploy=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')
         elif [[ "$_BRANCH_NAME" != *"release"* ]]; then
-          envsToDeploy=$(grep 'envsToDeployToOnMain:' brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
+          envsToDeploy=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
         else
           envsToDeploy="[]"
         fi
