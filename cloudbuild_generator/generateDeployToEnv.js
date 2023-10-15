@@ -70,8 +70,10 @@ async function generateCloudBuildYaml(
   console.log("do we get over here?");
 
   const env = envsArray.shift();
+  console.log("how about here?");
 
   const appName = await getNameFromSettingsGradle(settingsGradlePath);
+  console.log("or here?");
 
   const { buildContainer, serviceName } = await readBrianPipelineYaml(
     brianPipelineFilePath
