@@ -105,14 +105,15 @@ steps:
         elif [[ "$_BRANCH_NAME" != *"release"* ]]; then
           envsToDeploy=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
         else
-          envsToDeploy="[]""
+          envsToDeploy="[]"
         fi
 
         if [ -z "$envsToDeploy" ]; then
-          envsToDeploy='[]'
+          envsToDeploy="[]"
         fi
 
         envsToDeploy="'$envsToDeploy'"
+        echo $envsToDeploy
 
 
         if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
