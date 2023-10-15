@@ -192,7 +192,7 @@ steps:
           deployArray=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
         fi
 
-        if [ -z "$result" ] || [ $deployArray == "[]" ]
+        if [ -z "$deployArray" ] || [ $deployArray == "[]" ]
         then
           echo "Do nothing, array is empty"
         else
@@ -248,7 +248,7 @@ steps:
           deployArray=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
         fi
 
-        if [ -z "$result" ] || [ $deployArray == "[]" ]
+        if [ -z "$deployArray" ] || [ $deployArray == "[]" ]
         then
           echo "Do nothing, array is empty"
         else
