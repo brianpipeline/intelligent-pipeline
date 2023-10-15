@@ -63,7 +63,7 @@ steps:
           gcloud artifacts repositories create {{ serviceName }} --repository-format=docker --location=us-central1
         fi
 
-  - name: 'node:16'
+  - name: 'node:16-alpine'
     id: 'run generateDockerfile'
     entrypoint: 'bash'
     args: [
@@ -108,7 +108,7 @@ steps:
           docker push us-central1-docker.pkg.dev/${PROJECT_ID}/{{ serviceName }}/{{ appName }}:{{ originalAppVersion }}-$_SHORT_BUILD_ID
         fi
 
-  - name: 'node:16'
+  - name: 'node:16-alpine'
     id: 'Generate deploy-to-env pipeline'
     entrypoint: 'bash'
     args:
@@ -118,7 +118,7 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
-          cd intelligent-pipeline/cloudbuild_generator && \
+          cd /workspace/intelligent-pipeline/cloudbuild_generator && \
           npm install && \
           node generateDeployToEnv.js \
           /workspace/{{ repoName }}/brianpipeline.yaml \
