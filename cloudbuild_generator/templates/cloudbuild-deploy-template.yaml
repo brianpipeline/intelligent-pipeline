@@ -63,9 +63,9 @@ steps:
       - |-
         if [ "$_SKIP_DEPLOYMENT_TESTS" == "false" ]; 
         then
-          gcloud run services update-traffic {{serviceName}}-{{env}}
-          --project=$PROJECT_ID
-          --region=us-central1
+          gcloud run services update-traffic {{serviceName}}-{{env}} \
+          --project=$PROJECT_ID \
+          --region=us-central1 \
           --to-tags green-$_SHORT_BUILD_ID=100
         else
           echo "Skipping deployment tests."
@@ -83,9 +83,9 @@ steps:
       - |-
         if [ "$_SKIP_DEPLOYMENT_TESTS" == "false" ]; 
         then
-          gcloud run services update-traffic {{serviceName}}-{{env}}
-          --project=$PROJECT_ID
-          --region=us-central1
+          gcloud run services update-traffic {{serviceName}}-{{env}} \
+          --project=$PROJECT_ID \
+          --region=us-central1 \
           --clear-tags
         else
           echo "Skipping deployment tests."
