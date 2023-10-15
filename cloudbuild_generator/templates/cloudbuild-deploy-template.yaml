@@ -20,7 +20,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]] && [ "$_SKIP_DEPLOYMENT_TESTS" == "false" ]; 
+        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]]; 
         then
         	echo "Not the first time deploying this app"
 
@@ -61,15 +61,11 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ "$_SKIP_DEPLOYMENT_TESTS" == "false" ]; 
-        then
-          gcloud run services update-traffic {{serviceName}}-{{env}} \
-          --project=$PROJECT_ID \
-          --region=us-central1 \
-          --to-tags green-$_SHORT_BUILD_ID=100
-        else
-          echo "Skipping deployment tests."
-        fi
+        gcloud run services update-traffic {{serviceName}}-{{env}} \
+        --project=$PROJECT_ID \
+        --region=us-central1 \
+        --to-tags green-$_SHORT_BUILD_ID=100
+
   
   # The only way to do a finally block is to listen to see if the build fails, then clear green tags after that associated with
   # this build. I don't really want to get that working right now, but ideally that's how we'd do it.
@@ -81,15 +77,10 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ "$_SKIP_DEPLOYMENT_TESTS" == "false" ]; 
-        then
-          gcloud run services update-traffic {{serviceName}}-{{env}} \
+        gcloud run services update-traffic {{serviceName}}-{{env}} \
           --project=$PROJECT_ID \
           --region=us-central1 \
           --clear-tags
-        else
-          echo "Skipping deployment tests."
-        fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Tag new green build on {{env}} with blue'
