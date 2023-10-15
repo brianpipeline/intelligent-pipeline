@@ -105,10 +105,12 @@ steps:
         elif [[ "$_BRANCH_NAME" != *"release"* ]]; then
           envsToDeploy=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
         else
+          echo "shouldn't be in here."
           envsToDeploy='[]'
         fi
 
         if [ -z "$envsToDeploy" ]; then
+          echo "shouldn't be in here."
           envsToDeploy='[]'
         fi
 
@@ -121,14 +123,14 @@ steps:
             --name={{ repoName }}-artifact-push \
             --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-artifact-push \
             --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-artifactpush.yaml \
-            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME,_ENVS_TO_DEPLOY=$('$envsToDeploy') \
+            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME,_ENVS_TO_DEPLOY='$($envsToDeploy)' \
             --region=global
           else
             gcloud builds triggers create pubsub \
             --name={{ repoName }}-artifact-push \
             --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-artifact-push \
             --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-artifactpush.yaml \
-            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME,_ENVS_TO_DEPLOY=$('$envsToDeploy') \
+            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME,_ENVS_TO_DEPLOY='$($envsToDeploy)' \
             --region=global
           fi
         else
