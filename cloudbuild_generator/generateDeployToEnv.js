@@ -71,6 +71,7 @@ async function generateCloudBuildYaml(
 
   const env = envsArray.shift();
   console.log("how about here?");
+  console.log(`settings gradle path: ${settingsGradlePath}`);
 
   const appName = await getNameFromSettingsGradle(settingsGradlePath);
   console.log("or here?");
