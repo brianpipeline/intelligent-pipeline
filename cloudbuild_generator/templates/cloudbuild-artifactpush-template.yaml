@@ -115,7 +115,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ "$_BRANCH_NAME" == *"release"* ]
+        if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
           cd intelligent-pipeline/cloudbuild_generator && \
           npm install && \
@@ -130,7 +130,9 @@ steps:
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
-        else
+        fi
+
+        if [[ "$_BRANCH_NAME" != *"release"* ]]
           cd intelligent-pipeline/cloudbuild_generator && \
           npm install && \
           node generateDeployToEnv.js \
