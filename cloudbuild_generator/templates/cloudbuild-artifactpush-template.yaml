@@ -116,6 +116,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
+        cd flabs && ls
         if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
           cd /workspace/intelligent-pipeline/cloudbuild_generator && \
