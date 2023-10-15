@@ -100,6 +100,19 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
+        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        then
+          envsToDeploy=$(grep 'envsToDeployToOnRelease:' brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')
+        elif
+        then
+          envsToDeploy=$(grep 'envsToDeployToOnMain:' brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
+        else
+          envsToDeploy="[]"
+        
+        if [ -z "$envsToDeploy" ]
+        then
+          envsToDeploy="[]"
+
         if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
         then
           if [[ -z "$(gcloud builds triggers describe {{ repoName }}-artifact-push 2>&1 >/dev/null)" ]]; 
@@ -109,14 +122,14 @@ steps:
             --name={{ repoName }}-artifact-push \
             --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-artifact-push \
             --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-artifactpush.yaml \
-            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME \
+            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME,_ENVS_TO_DEPLOY=$envsToDeploy \
             --region=global
           else
             gcloud builds triggers create pubsub \
             --name={{ repoName }}-artifact-push \
             --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-artifact-push \
             --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-artifactpush.yaml \
-            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME \
+            --substitutions=_COMMIT_ID=$_COMMIT_ID,_BRANCH_NAME=$_BRANCH_NAME,_ENVS_TO_DEPLOY=$envsToDeploy \
             --region=global
           fi
         else

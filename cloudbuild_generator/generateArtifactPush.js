@@ -3,6 +3,7 @@ import {
   readCloudBuildTemplate,
   getVersionFromBuildGradle,
   getNameFromSettingsGradle,
+  getEnvsToDeploy,
 } from "./commonFunctions.js";
 import Handlebars from "handlebars";
 import { promises as fs } from "fs";
@@ -16,7 +17,8 @@ function generateFileBasedOffTemplate(
   cloneUrl,
   commitId,
   appName,
-  originalAppVersion
+  originalAppVersion,
+  envsToDeploy
 ) {
   const template = Handlebars.compile(templateString);
 
@@ -36,6 +38,7 @@ function generateFileBasedOffTemplate(
     commitId,
     appName,
     originalAppVersion,
+    envsToDeploy,
   });
   return contents;
 }
@@ -50,12 +53,21 @@ async function generateCloudBuildYaml(
   buildGradlePath,
   settingsGradlePath
 ) {
-  const { buildContainer, serviceName } = await readBrianPipelineYaml(
-    brianPipelineFilePath
-  );
+  const {
+    buildContainer,
+    serviceName,
+    envsToDeployToOnMain,
+    envsToDeployToOnRelease,
+  } = await readBrianPipelineYaml(brianPipelineFilePath);
 
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
+  );
+
+  const envsToDeploy = getEnvsToDeploy(
+    branchName,
+    envsToDeployToOnMain,
+    envsToDeployToOnRelease
   );
 
   const originalAppVersion = await getVersionFromBuildGradle(buildGradlePath);
@@ -70,7 +82,8 @@ async function generateCloudBuildYaml(
     cloneUrl,
     commitId,
     appName,
-    originalAppVersion
+    originalAppVersion,
+    envsToDeploy
   );
 
   fs.writeFile("cloudbuild-artifactpush.yaml", contents);

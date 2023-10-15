@@ -1,6 +1,7 @@
 substitutions:
   _COMMIT_ID: {{ commitId }}
   _BRANCH_NAME: {{ branchName }}
+  _ENVS_TO_DEPLOY: {{{ envsToDeploy }}}
   _SHORT_BUILD_ID: ${BUILD_ID:0:8}
 
 options:
@@ -126,7 +127,7 @@ steps:
           {{ cloneUrl }} \
           $_COMMIT_ID \
           $(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
-          "$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')" \
+          "$_ENVS_TO_DEPLOY" \
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
@@ -140,7 +141,7 @@ steps:
           {{ cloneUrl }} \
           $_COMMIT_ID \
           {{ originalAppVersion }}-$_SHORT_BUILD_ID \
-          "$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')" \
+          "$_ENVS_TO_DEPLOY" \
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
@@ -154,27 +155,24 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        if [ -z "$_ENVS_TO_DEPLOY" ] || [ $_ENVS_TO_DEPLOY == "[]" ]
         then
-          result=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
-        elif [[ "$_BRANCH_NAME" == "main" ]]
-        then
-          result=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
+          echo "Do nothing, deploy array is empty"
         else
-          result=""
-        fi
-        
-        echo $result
-        if [ -n "$result" ]
-        then
-          if [[ -z "$(gcloud pubsub topics describe {{ repoName }}-deploy-to-$result 2>&1 >/dev/null)" ]]; 
+          env=$(echo $_ENVS_TO_DEPLOY | sed -n 's/\["\([^"]*\)".*/\1/p')
+
+          echo $env
+          if [ -n "$env" ]
           then
-            echo "Pubsub topic already exists"
+            if [[ -z "$(gcloud pubsub topics describe {{ repoName }}-deploy-to-$env 2>&1 >/dev/null)" ]]; 
+            then
+              echo "Pubsub topic already exists"
+            else
+              gcloud pubsub topics create {{ repoName }}-deploy-to-$env
+            fi
           else
-            gcloud pubsub topics create {{ repoName }}-deploy-to-$result
+            echo "On a feature branch, so we're not cascading."
           fi
-        else
-          echo "On a feature branch, so we're not cascading."
         fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -185,24 +183,16 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        if [ -z "$_ENVS_TO_DEPLOY" ] || [ $_ENVS_TO_DEPLOY == "[]" ]
         then
-          deployArray=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')
+          echo "Do nothing, deploy array is empty"
         else
-          deployArray=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
-        fi
-
-        if [ -z "$deployArray" ] || [ $deployArray == "[]" ]
-        then
-          echo "Do nothing, array is empty"
-        else
+          env=$(echo $_ENVS_TO_DEPLOY | sed -n 's/\["\([^"]*\)".*/\1/p')
           if [[ "$_BRANCH_NAME" == *"release"* ]]
           then
-            env=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
             artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
           elif [[ "$_BRANCH_NAME" == "main" ]]
           then
-            env=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
             artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
           else
             env=""
@@ -241,28 +231,11 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ "$_BRANCH_NAME" == *"release"* ]]
-        then
-          deployArray=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')
-        else
-          deployArray=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
-        fi
-
-        if [ -z "$deployArray" ] || [ $deployArray == "[]" ]
+        if [ $_ENVS_TO_DEPLOY == "[]" ]
         then
           echo "Do nothing, array is empty"
         else
-          if [[ "$_BRANCH_NAME" == *"release"* ]]
-          then
-            env=$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
-            artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
-          elif [[ "$_BRANCH_NAME" == "main" ]]
-          then
-            env=$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed -n 's/.*\["\([^"]*\)".*/\1/p')
-            artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
-          else
-            env=""
-          fi
+          env=$(echo $_ENVS_TO_DEPLOY | sed -n 's/\["\([^"]*\)".*/\1/p')
           
           if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
           then

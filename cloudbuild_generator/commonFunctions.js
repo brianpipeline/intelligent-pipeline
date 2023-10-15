@@ -24,6 +24,17 @@ export async function getNameFromSettingsGradle(settingsGradlePath) {
   return /rootProject.name = '(.*)'/.exec(file)[1];
 }
 
+export function getEnvsToDeploy(branchName, envsToDeployToOnMain, envsToDeployToOnRelease) {
+  if (branchName === "main") {
+    return envsToDeployToOnMain;
+  }
+  if (branchName.includes("release")) {
+    return envsToDeployToOnRelease;
+  }
+  return [];
+}
+
+
 export function getProjectVersion(branchName, originalAppVersion, timestamp) {
   if (branchName === "main") {
     return /([^\/]+$)/.exec(originalAppVersion)[1] + `-${timestamp}`;
