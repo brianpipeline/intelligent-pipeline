@@ -117,9 +117,9 @@ steps:
       - |-
         if [[ "$_BRANCH_NAME" == *"release"* ]]
         then
-          cd /workspace/intelligent-pipeline/cloudbuild_generator \
-          && npm install \
-          && node generateDeployToEnv.js \
+          cd intelligent-pipeline/cloudbuild_generator
+          npm install
+          node generateDeployToEnv.js \
           /workspace/{{ repoName }}/brianpipeline.yaml \
           templates/cloudbuild-deploy-template.yaml \
           {{ repoName }} \
@@ -129,12 +129,11 @@ steps:
           $(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //'') \
           true \
           false \
-          /workspace/{{ repoName }}/settings.gradle \
-          && mv cloudbuild-deploy.yaml ../build
+          /workspace/{{ repoName }}/settings.gradle
         else
-          cd /workspace/intelligent-pipeline/cloudbuild_generator \
-          && npm install \
-          && node generateDeployToEnv.js \
+          cd intelligent-pipeline/cloudbuild_generator
+          npm install
+          node generateDeployToEnv.js \
           /workspace/{{ repoName }}/brianpipeline.yaml \
           templates/cloudbuild-deploy-template.yaml \
           {{ repoName }} \
@@ -144,8 +143,7 @@ steps:
           $(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //'') \
           true \
           false \
-          /workspace/{{ repoName }}/settings.gradle \
-          && mv cloudbuild-deploy.yaml ../build
+          /workspace/{{ repoName }}/settings.gradle
         fi
 
         ls
