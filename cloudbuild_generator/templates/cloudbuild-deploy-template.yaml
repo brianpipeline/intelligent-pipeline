@@ -94,7 +94,7 @@ steps:
         --update-tags=blue={{serviceName}}-{{{env}}}-$_SHORT_BUILD_ID'
       ]
 
-- name: 'node:16'
+  - name: 'node:16'
     id: 'Generate deploy-to-env pipeline'
     entrypoint: 'bash'
     args:
