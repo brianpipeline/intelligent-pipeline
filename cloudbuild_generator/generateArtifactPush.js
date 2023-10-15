@@ -28,9 +28,9 @@ function generateFileBasedOffTemplate(
     buildImage = "gradle:7.6.1-jdk17";
     buildArgs = "gradle assemble && cp -r build ../build";
   }
-  const transformedEnvsToDeploy = `${JSON.stringify(envsToDeploy)
+  const transformedEnvsToDeploy = `'${JSON.stringify(envsToDeploy)
     .replace(/\[|\]/g, "")
-    .replace(/,/g, " ")}`;
+    .replace(/,/g, " ")}'`;
 
   const contents = template({
     serviceName,

@@ -113,6 +113,7 @@ steps:
         fi
 
         envsToDeploy=$(echo "$envsToDeploy" | sed 's/\["\(.*\)"\]/"\1"/; s/", "/" "/g')
+        envsToDeploy="'$envsToDeploy'"
         echo $envsToDeploy
 
         if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
