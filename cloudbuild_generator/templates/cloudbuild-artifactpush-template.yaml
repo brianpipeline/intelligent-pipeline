@@ -126,7 +126,7 @@ steps:
           {{ cloneUrl }} \
           $_COMMIT_ID \
           $(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
-          $(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //') \
+          "$(grep 'envsToDeployToOnRelease:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')" \
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
@@ -140,16 +140,11 @@ steps:
           {{ cloneUrl }} \
           $_COMMIT_ID \
           {{ originalAppVersion }}-$_SHORT_BUILD_ID \
-          $(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //') \
+          "$(grep 'envsToDeployToOnMain:' /workspace/{{ repoName }}/brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')" \
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
         fi
-
-        ls
-        cd /workspace/intelligent-pipeline/cloudbuild_generator && ls
-        cd /workspace && ls
-        cd /workspace/build && ls
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub topic.'
@@ -181,17 +176,6 @@ steps:
         else
           echo "On a feature branch, so we're not cascading."
         fi
-
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'REMOVE.'
-    entrypoint: 'bash'
-    args:
-      - '-eEuo'
-      - 'pipefail'
-      - '-c'
-      - |-
-        cd /workspace/intelligent-pipeline/cloudbuild_generator && ls
-        cd /workspace && ls
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create deploy-to-env pipeline.'
