@@ -128,7 +128,7 @@ steps:
           {{ cloneUrl }} \
           $_COMMIT_ID \
           $(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
-          '$_ENVS_TO_DEPLOY' \
+          "'$_ENVS_TO_DEPLOY'" \
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
@@ -142,7 +142,7 @@ steps:
           {{ cloneUrl }} \
           $_COMMIT_ID \
           {{ originalAppVersion }}-$_SHORT_BUILD_ID \
-          '$_ENVS_TO_DEPLOY' \
+          "'$_ENVS_TO_DEPLOY'" \
           true \
           false \
           /workspace/{{ repoName }}/settings.gradle
