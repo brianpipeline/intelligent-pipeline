@@ -33,6 +33,7 @@ function generateFileBasedOffTemplate(
     .replace(/\[|\]/g, "")
     .replace(/,/g, " ")}`;
 
+  console.log("do we get all the way over here?");
   const contents = template({
     serviceName,
     buildImage,
@@ -66,6 +67,7 @@ async function generateCloudBuildYaml(
   const envsArray = envsToDeploy
     .split(" ")
     .map((item) => item.replace(/"/g, ""));
+  console.log("do we get over here?");
 
   const env = envsArray.shift();
 
