@@ -78,10 +78,12 @@ async function generateCloudBuildYaml(
   const { buildContainer, serviceName } = await readBrianPipelineYaml(
     brianPipelineFilePath
   );
+  console.log("made it past pipeline thing");
 
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
   );
+  console.log("could it be the template?");
 
   const contents = generateFileBasedOffTemplate(
     templateString,
