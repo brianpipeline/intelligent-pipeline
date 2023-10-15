@@ -20,7 +20,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]] && ["$_SKIP_DEPLOYMENT_TESTS" = "false"]; 
+        if [[ -z "$(gcloud run services describe {{ serviceName }}-{{env}} --region=us-central1 2>&1 >/dev/null)" ]] && ["$_SKIP_DEPLOYMENT_TESTS" == "false"]; 
         then
         	echo "Not the first time deploying this app"
 
@@ -61,9 +61,9 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if ["$_SKIP_DEPLOYMENT_TESTS" = "false"]; 
+        if ["$_SKIP_DEPLOYMENT_TESTS" == "false"]; 
         then
-          gcloud run services update-traffic $_SERVICE_NAME-{{env}}
+          gcloud run services update-traffic {{serviceName}}-{{env}}
           --project=$PROJECT_ID
           --region=us-central1
           --to-tags green-$_SHORT_BUILD_ID=100
@@ -81,9 +81,9 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if ["$_SKIP_DEPLOYMENT_TESTS" = "false"]; 
+        if ["$_SKIP_DEPLOYMENT_TESTS" == "false"]; 
         then
-          gcloud run services update-traffic $_SERVICE_NAME-{{env}}
+          gcloud run services update-traffic {{serviceName}}-{{env}}
           --project=$PROJECT_ID
           --region=us-central1
           --clear-tags
@@ -97,8 +97,8 @@ steps:
     args:
       [
         '-c',
-        'gcloud run services update-traffic $_SERVICE_NAME-{{env}}
+        'gcloud run services update-traffic {{serviceName}}-{{env}}
         --project=$PROJECT_ID
         --region=us-central1
-        --update-tags=blue=$_SERVICE_NAME-{{env}}-$_SHORT_BUILD_ID'
+        --update-tags=blue={{serviceName}}-{{env}}-$_SHORT_BUILD_ID'
       ]
