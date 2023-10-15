@@ -29,6 +29,10 @@ function generateFileBasedOffTemplate(
     buildArgs = "gradle test";
   }
 
+  const transformedEnvsToDeploy = `${JSON.stringify(envsToDeploy)
+    .replace(/\[|\]/g, "")
+    .replace(/,/g, " ")}`;
+
   const contents = template({
     serviceName,
     buildImage,
@@ -38,7 +42,7 @@ function generateFileBasedOffTemplate(
     commitId,
     appName,
     artifactTag,
-    envsToDeploy: `'${JSON.stringify(envsToDeploy)}'`,
+    envsToDeploy: transformedEnvsToDeploy,
     cascade: `"${cascade}"`,
     skipDeploymentTests: `"${skipDeploymentTests}"`,
     env,
@@ -58,7 +62,10 @@ async function generateCloudBuildYaml(
   skipDeploymentTests,
   settingsGradlePath
 ) {
-  const envsArray = JSON.parse(envsToDeploy);
+  const envsArray = envsToDeploy
+    .split(" ")
+    .map((item) => item.replace(/"/g, ""));
+
   const env = envsArray.shift();
 
   const appName = await getNameFromSettingsGradle(settingsGradlePath);
