@@ -100,18 +100,17 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ "$_BRANCH_NAME" == *"release"* ]]
-        then
+        if [[ "$_BRANCH_NAME" == *"release"* ]]; then
           envsToDeploy=$(grep 'envsToDeployToOnRelease:' brianpipeline.yaml | sed 's/envsToDeployToOnRelease: //')
-        elif
-        then
+        elif [[ "$_BRANCH_NAME" != *"release"* ]]; then
           envsToDeploy=$(grep 'envsToDeployToOnMain:' brianpipeline.yaml | sed 's/envsToDeployToOnMain: //')
         else
           envsToDeploy="[]"
-        
-        if [ -z "$envsToDeploy" ]
-        then
+        fi
+
+        if [ -z "$envsToDeploy" ]; then
           envsToDeploy="[]"
+        fi
 
         if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
         then
