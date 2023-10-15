@@ -38,7 +38,7 @@ function generateFileBasedOffTemplate(
     commitId,
     appName,
     originalAppVersion,
-    envsToDeploy,
+    envsToDeploy: `'${JSON.stringify(envsToDeploy)}'`,
   });
   return contents;
 }
