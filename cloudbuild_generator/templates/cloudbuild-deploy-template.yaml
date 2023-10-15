@@ -12,6 +12,37 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone intelligent pipeline'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone https://github.com/brianpipeline/intelligent-pipeline'
+    ]
+    
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Clone repo'
+    entrypoint: 'bash'
+    args: [
+      '-c',
+      'git clone {{ cloneUrl }}'
+    ]
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Checkout stuff'
+    entrypoint: 'bash'
+    args: 
+      - '-eEuo'
+      - 'pipefail'
+      - '-c'
+      - |-
+        if [ "$_COMMIT_ID" == "" ]
+        then
+          cd {{ repoName }} && git checkout $_BRANCH_NAME
+        else
+          cd {{ repoName }} && git checkout $_COMMIT_ID
+        fi
+
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Deploy to cloud run for {{{env}}}.'
     entrypoint: 'bash'
