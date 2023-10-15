@@ -144,7 +144,7 @@ steps:
           {{ repoName }} \
           {{ cloneUrl }} \
           $_COMMIT_ID \
-          $(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//') \
+          $_ARTIFACT_TAG \
           "$_ENVS_TO_DEPLOY" \
           true \
           false \
@@ -158,7 +158,7 @@ steps:
           {{ repoName }} \
           {{ cloneUrl }} \
           $_COMMIT_ID \
-          {{ originalAppVersion }}-$_SHORT_BUILD_ID \
+          $_ARTIFACT_TAG \
           "$_ENVS_TO_DEPLOY" \
           true \
           false \
