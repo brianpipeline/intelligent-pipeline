@@ -46,7 +46,7 @@ steps:
       "cd {{ repoName }} && {{{ buildArgs }}}"
     ]
 
-  - name: 'node:16'
+  - name: 'node:16-alpine'
     id: 'run generateArtifactPush'
     entrypoint: 'bash'
     args: 
