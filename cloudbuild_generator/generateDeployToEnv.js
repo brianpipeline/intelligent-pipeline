@@ -62,6 +62,7 @@ async function generateCloudBuildYaml(
   skipDeploymentTests,
   settingsGradlePath
 ) {
+  console.log("do we get in here?");
   const envsArray = envsToDeploy
     .split(" ")
     .map((item) => item.replace(/"/g, ""));

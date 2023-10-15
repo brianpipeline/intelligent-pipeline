@@ -155,7 +155,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ -z "$_ENVS_TO_DEPLOY" ] || [ $_ENVS_TO_DEPLOY == "[]" ]
+        if [ -z "$_ENVS_TO_DEPLOY" ] || [ $_ENVS_TO_DEPLOY == "" ]
         then
           echo "Do nothing, deploy array is empty"
         else
@@ -183,7 +183,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ -z "$_ENVS_TO_DEPLOY" ] || [ $_ENVS_TO_DEPLOY == "[]" ]
+        if [ -z "$_ENVS_TO_DEPLOY" ] || [ $_ENVS_TO_DEPLOY == "" ]
         then
           echo "Do nothing, deploy array is empty"
         else
@@ -231,7 +231,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ $_ENVS_TO_DEPLOY == "[]" ]
+        if [ -z "$_ENVS_TO_DEPLOY" ] || [ $_ENVS_TO_DEPLOY == "" ]
         then
           echo "Do nothing, array is empty"
         else
