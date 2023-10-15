@@ -39,8 +39,8 @@ function generateFileBasedOffTemplate(
     appName,
     artifactTag,
     envsToDeploy: `'${JSON.stringify(envsToDeploy)}'`,
-    cascade,
-    skipDeploymentTests,
+    cascade: `"${cascade}"`,
+    skipDeploymentTests: `"${skipDeploymentTests}"`,
     env,
   });
   return contents;
