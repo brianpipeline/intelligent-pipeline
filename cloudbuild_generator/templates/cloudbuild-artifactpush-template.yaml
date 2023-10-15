@@ -115,10 +115,10 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [[ "$_BRANCH_NAME" == *"release"* ]]
+        if [ "$_BRANCH_NAME" == *"release"* ]
         then
-          cd intelligent-pipeline/cloudbuild_generator
-          npm install
+          cd intelligent-pipeline/cloudbuild_generator && \
+          npm install && \
           node generateDeployToEnv.js \
           /workspace/{{ repoName }}/brianpipeline.yaml \
           templates/cloudbuild-deploy-template.yaml \
@@ -131,8 +131,8 @@ steps:
           false \
           /workspace/{{ repoName }}/settings.gradle
         else
-          cd intelligent-pipeline/cloudbuild_generator
-          npm install
+          cd intelligent-pipeline/cloudbuild_generator && \
+          npm install && \
           node generateDeployToEnv.js \
           /workspace/{{ repoName }}/brianpipeline.yaml \
           templates/cloudbuild-deploy-template.yaml \
@@ -222,14 +222,14 @@ steps:
             gcloud builds triggers create pubsub \
             --name={{ repoName }}-deploy-to-$env \
             --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
-            --inline-config=/workspace/build/cloudbuild-deploy.yaml \
+            --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
             --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag \
             --region=global
           else
             gcloud builds triggers create pubsub \
             --name={{ repoName }}-deploy-to-$env \
             --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
-            --inline-config=/workspace/build/cloudbuild-deploy.yaml \
+            --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
             --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag \
             --region=global
           fi
