@@ -236,7 +236,7 @@ steps:
         then
           echo "Do nothing, array is empty"
         else
-          env=$(echo $_ENVS_TO_DEPLOY | sed -n 's/\["\([^"]*\)".*/\1/p')
+          env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
           
           if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
           then
