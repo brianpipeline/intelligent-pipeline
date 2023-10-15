@@ -33,7 +33,6 @@ function generateFileBasedOffTemplate(
     .replace(/\[|\]/g, "")
     .replace(/,/g, " ")}`;
 
-  console.log("do we get all the way over here?");
   const contents = template({
     serviceName,
     buildImage,
@@ -63,28 +62,21 @@ async function generateCloudBuildYaml(
   skipDeploymentTests,
   settingsGradlePath
 ) {
-  console.log("do we get in here?");
   const envsArray = envsToDeploy
     .split(" ")
-    .map((item) => item.replace(/"/g, ""));
-  console.log("do we get over here?");
+    .map((item) => item.replace(/'/g, ""));
 
   const env = envsArray.shift();
-  console.log("how about here?");
-  console.log(`settings gradle path: ${settingsGradlePath}`);
 
   const appName = await getNameFromSettingsGradle(settingsGradlePath);
-  console.log("or here?");
 
   const { buildContainer, serviceName } = await readBrianPipelineYaml(
     brianPipelineFilePath
   );
-  console.log("made it past pipeline thing");
 
   const templateString = await readCloudBuildTemplate(
     cloudBuildTemplateFilePath
   );
-  console.log("could it be the template?");
 
   const contents = generateFileBasedOffTemplate(
     templateString,
