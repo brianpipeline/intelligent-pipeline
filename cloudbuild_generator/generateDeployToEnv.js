@@ -29,9 +29,9 @@ function generateFileBasedOffTemplate(
     buildArgs = "gradle test";
   }
 
-  const transformedEnvsToDeploy = `${JSON.stringify(envsToDeploy)
+  const transformedEnvsToDeploy = `'${JSON.stringify(envsToDeploy)
     .replace(/\[|\]/g, "")
-    .replace(/,/g, " ")}`;
+    .replace(/,/g, " ")}'`;
 
   const contents = template({
     serviceName,
