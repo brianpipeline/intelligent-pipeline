@@ -224,6 +224,7 @@ steps:
                 --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
                 --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
                 --region=global
+              fi
             else
               if [[ $env == "prod" ]]
               then
