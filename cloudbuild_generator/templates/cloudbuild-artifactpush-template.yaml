@@ -208,19 +208,40 @@ steps:
             if [[ -z "$(gcloud builds triggers describe {{ repoName }}-deploy-to-$env 2>&1 >/dev/null)" ]]; 
             then
               gcloud builds triggers delete {{ repoName }}-deploy-to-$env
-              gcloud builds triggers create pubsub \
-              --name={{ repoName }}-deploy-to-$env \
-              --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
-              --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
-              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
-              --region=global
+              if [[ $env == "prod" ]]
+              then
+                gcloud builds triggers create pubsub \
+                --name={{ repoName }}-deploy-to-$env \
+                --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+                --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
+                --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
+                --region=global \
+                --require-approval
+              else
+                gcloud builds triggers create pubsub \
+                --name={{ repoName }}-deploy-to-$env \
+                --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+                --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
+                --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
+                --region=global
             else
-              gcloud builds triggers create pubsub \
-              --name={{ repoName }}-deploy-to-$env \
-              --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
-              --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
-              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
-              --region=global
+              if [[ $env == "prod" ]]
+              then
+                gcloud builds triggers create pubsub \
+                --name={{ repoName }}-deploy-to-$env \
+                --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+                --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
+                --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
+                --region=global \
+                --require-approval
+              else
+                gcloud builds triggers create pubsub \
+                --name={{ repoName }}-deploy-to-$env \
+                --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
+                --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
+                --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
+                --region=global
+              fi
             fi
           else
             echo "On a feature branch, so we're not cascading."
