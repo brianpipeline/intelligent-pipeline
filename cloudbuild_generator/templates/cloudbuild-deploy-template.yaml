@@ -36,12 +36,7 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ "$_COMMIT_ID_FOR_DEPLOYMENT_TESTS" == "" ]
-        then
-          cd {{ repoName }} && git checkout $_BRANCH_NAME
-        else
-          cd {{ repoName }} && git checkout $_COMMIT_ID_FOR_DEPLOYMENT_TESTS
-        fi
+        cd {{ repoName }} && git checkout $_COMMIT_ID_FOR_DEPLOYMENT_TESTS
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Deploy to cloud run for {{{env}}}.'
@@ -133,37 +128,19 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        cd flabs && ls
-        if [[ "$_BRANCH_NAME" == *"release"* ]]
-        then
-          cd /workspace/intelligent-pipeline/cloudbuild_generator && \
-          npm install && \
-          node generateDeployToEnv.js \
-          /workspace/{{ repoName }}/brianpipeline.yaml \
-          templates/cloudbuild-deploy-template.yaml \
-          {{ repoName }} \
-          {{ cloneUrl }} \
-          $_COMMIT_ID_FOR_DEPLOYMENT_TESTS \
-          $_ARTIFACT_TAG \
-          "$_ENVS_TO_DEPLOY" \
-          true \
-          false \
-          /workspace/{{ repoName }}/settings.gradle
-        else
-          cd /workspace/intelligent-pipeline/cloudbuild_generator && \
-          npm install && \
-          node generateDeployToEnv.js \
-          /workspace/{{ repoName }}/brianpipeline.yaml \
-          templates/cloudbuild-deploy-template.yaml \
-          {{ repoName }} \
-          {{ cloneUrl }} \
-          $_COMMIT_ID_FOR_DEPLOYMENT_TESTS \
-          $_ARTIFACT_TAG \
-          "$_ENVS_TO_DEPLOY" \
-          true \
-          false \
-          /workspace/{{ repoName }}/settings.gradle
-        fi
+        cd /workspace/intelligent-pipeline/cloudbuild_generator && \
+        npm install && \
+        node generateDeployToEnv.js \
+        /workspace/{{ repoName }}/brianpipeline.yaml \
+        templates/cloudbuild-deploy-template.yaml \
+        {{ repoName }} \
+        {{ cloneUrl }} \
+        $_COMMIT_ID_FOR_DEPLOYMENT_TESTS \
+        $_ARTIFACT_TAG \
+        "$_ENVS_TO_DEPLOY" \
+        true \
+        false \
+        /workspace/{{ repoName }}/settings.gradle
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Create new pubsub topic.'
@@ -205,16 +182,7 @@ steps:
         then
           echo "Do nothing, deploy array is empty"
         else
-          if [[ "$_BRANCH_NAME" == *"release"* ]]
-          then
-            env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
-          elif [[ "$_BRANCH_NAME" == "main" ]]
-          then
-            env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
-          else
-            echo "hopefully we don't get in here"
-            env=""
-          fi
+          env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
           
           echo $env
           if [ -n "$env" ]
@@ -253,12 +221,14 @@ steps:
       - |-
         if [ -z "$_ENVS_TO_DEPLOY" ] || [ $_ENVS_TO_DEPLOY == "" ]
         then
-          echo "Do nothing, array is empty"
+          echo "Do nothing, deploy array is empty"
         else
           env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
           
-          if [[ "$_BRANCH_NAME" == *"release"* ]] || [[ "$_BRANCH_NAME" == "main" ]]
+          echo $env
+          if [ -n "$env" ]
           then
+            remainingEnvsToDeploy=$(echo $_ENVS_TO_DEPLOY | sed -e "s/\"$env\" //g")          
             gcloud pubsub topics publish projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
             --message='{"unused": "{{ repoName }}"}'
           else
