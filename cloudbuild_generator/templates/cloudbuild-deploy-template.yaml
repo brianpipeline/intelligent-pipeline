@@ -193,7 +193,7 @@ steps:
             if [[ -z "$(gcloud builds triggers describe {{ repoName }}-deploy-to-$env 2>&1 >/dev/null)" ]]; 
             then
               gcloud builds triggers delete {{ repoName }}-deploy-to-$env
-              if [[ {{{env}}} == "prod" ]]
+              if [[ $env == "prod" ]]
               then
                 gcloud builds triggers create pubsub \
                 --name={{ repoName }}-deploy-to-$env \
@@ -211,7 +211,7 @@ steps:
                 --region=global
               fi
             else
-              if [[ {{{env}}} == "prod" ]]
+              if [[ $env == "prod" ]]
               then
                 gcloud builds triggers create pubsub \
                 --name={{ repoName }}-deploy-to-$env \
