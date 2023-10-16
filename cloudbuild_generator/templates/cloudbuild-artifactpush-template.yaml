@@ -203,6 +203,7 @@ steps:
           if [ -n "$env" ]
           then
             remainingEnvsToDeploy=$(echo $_ENVS_TO_DEPLOY | sed -e "s/\"$env\" //g")
+            remainingEnvsToDeploy="${remainingEnvsToDeploy//\"$string_to_remove\"/}"
 
             if [[ -z "$(gcloud builds triggers describe {{ repoName }}-deploy-to-$env 2>&1 >/dev/null)" ]]; 
             then
