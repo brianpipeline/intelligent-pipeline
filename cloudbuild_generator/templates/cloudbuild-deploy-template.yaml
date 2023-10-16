@@ -205,14 +205,14 @@ steps:
         then
           echo "Do nothing, deploy array is empty"
         else
-          env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
           if [[ "$_BRANCH_NAME" == *"release"* ]]
           then
-            artifactTag=$(echo {{ originalAppVersion }} | sed 's/-SNAPSHOT//')
+            env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
           elif [[ "$_BRANCH_NAME" == "main" ]]
           then
-            artifactTag={{ originalAppVersion }}-$_SHORT_BUILD_ID
+            env=$(echo $_ENVS_TO_DEPLOY | awk -F' ' '{print $1}' | sed 's/"//g')
           else
+            echo "hopefully we don't get in here"
             env=""
           fi
           
@@ -228,14 +228,14 @@ steps:
               --name={{ repoName }}-deploy-to-$env \
               --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
               --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
-              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID_FOR_DEPLOYMENT_TESTS,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
+              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID_FOR_DEPLOYMENT_TESTS,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$_ARTIFACT_TAG,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
               --region=global
             else
               gcloud builds triggers create pubsub \
               --name={{ repoName }}-deploy-to-$env \
               --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
               --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
-              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID_FOR_DEPLOYMENT_TESTS,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
+              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID_FOR_DEPLOYMENT_TESTS,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$_ARTIFACT_TAG,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
               --region=global
             fi
           else
