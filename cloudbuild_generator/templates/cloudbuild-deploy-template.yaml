@@ -36,11 +36,11 @@ steps:
       - 'pipefail'
       - '-c'
       - |-
-        if [ "$_COMMIT_ID" == "" ]
+        if [ "$_COMMIT_ID_FOR_DEPLOYMENT_TESTS" == "" ]
         then
           cd {{ repoName }} && git checkout $_BRANCH_NAME
         else
-          cd {{ repoName }} && git checkout $_COMMIT_ID
+          cd {{ repoName }} && git checkout $_COMMIT_ID_FOR_DEPLOYMENT_TESTS
         fi
 
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -143,7 +143,7 @@ steps:
           templates/cloudbuild-deploy-template.yaml \
           {{ repoName }} \
           {{ cloneUrl }} \
-          $_COMMIT_ID \
+          $_COMMIT_ID_FOR_DEPLOYMENT_TESTS \
           $_ARTIFACT_TAG \
           "$_ENVS_TO_DEPLOY" \
           true \
@@ -157,7 +157,7 @@ steps:
           templates/cloudbuild-deploy-template.yaml \
           {{ repoName }} \
           {{ cloneUrl }} \
-          $_COMMIT_ID \
+          $_COMMIT_ID_FOR_DEPLOYMENT_TESTS \
           $_ARTIFACT_TAG \
           "$_ENVS_TO_DEPLOY" \
           true \
@@ -228,14 +228,14 @@ steps:
               --name={{ repoName }}-deploy-to-$env \
               --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
               --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
-              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
+              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID_FOR_DEPLOYMENT_TESTS,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
               --region=global
             else
               gcloud builds triggers create pubsub \
               --name={{ repoName }}-deploy-to-$env \
               --topic=projects/cloud-build-pipeline-396819/topics/{{ repoName }}-deploy-to-$env \
               --inline-config=/workspace/intelligent-pipeline/cloudbuild_generator/cloudbuild-deploy.yaml \
-              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
+              --substitutions=_COMMIT_ID_FOR_DEPLOYMENT_TESTS=$_COMMIT_ID_FOR_DEPLOYMENT_TESTS,_CASCADE_TO_OTHER_ENVS=true,_SKIP_DEPLOYMENT_TESTS=false,_ARTIFACT_TAG=$artifactTag,_ENVS_TO_DEPLOY="'$remainingEnvsToDeploy'" \
               --region=global
             fi
           else
